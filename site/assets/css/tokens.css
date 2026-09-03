@@ -1,0 +1,230 @@
+/*
+ * Baynana design tokens
+ * -----------------------------------------------------------------------------
+ * منظومة هادئة من ثلاث عائلات لونية:
+ *
+ *   1. البنفسجي  — العمود الأساسي للهوية والروابط والأزرار والتركيز
+ *   2. الوردي الدافئ — لهجة ثانوية للأقسام الدافئة
+ *   3. الأخضر المزرقّ — لهجة محدودة للبيانات والمؤشرات
+ *
+ * ملاحظة معمارية مهمة
+ * -------------------
+ * أبعاد التخطيط (عرض الحاوية، ارتفاعات البطاقات، أنصاف الأقطار، المسافات)
+ * تُعرَّف بالبكسل عمدًا وليس بالـ rem.
+ *
+ * السبب: حجم خط الجذر يتبع إعداد المتصفح لدى المستخدم وقد يكون 20px أو 22px
+ * أو أكثر. حين كانت الحاوية معرّفة بـ 70rem كانت تساوي 1540px على متصفح
+ * مضبوط على 22px، فلا تُقيّد المحتوى أبدًا وينتشر إلى حواف الشاشة، وتتضخم
+ * معه أنصاف الأقطار والارتفاعات الدنيا فتتحول البطاقات إلى كتل ضخمة.
+ *
+ * النصوص وحدها تبقى بوحدات rem/clamp حتى يستمر تكبير الخط لدى المستخدم في
+ * العمل (وهو مطلب إتاحة)، بينما يبقى هيكل الصفحة ثابتًا ومتوقعًا.
+ *
+ * القاعدة: تستخدم المكوّنات الأسماء الدلالية أدناه، لا قيمًا لونية مباشرة.
+ */
+:root {
+  color-scheme: light dark;
+
+  /* ---------------------------------------------------------- الأرضيات */
+  --color-canvas: #faf9fd;
+  --color-surface: #ffffff;
+  --color-elevated: #ebe7f5;
+  --color-warm: #ffedf3;
+
+  /* ------------------------------------------------------------ النصوص */
+  --color-ink: #211d2e;
+  --color-ink-soft: #453f57;
+  --color-muted: #625d70;
+
+  /* ------------------------------------------------------------ الحدود */
+  --color-border: #d6d0e4;
+  --color-border-strong: #7d7396;
+
+  /* ------------------------------------- البنفسجي: العمود الأساسي */
+  --color-primary: #5b4bc4;
+  --color-primary-hover: #4939a8;
+  --color-primary-tint: #c7bff0;
+  --color-primary-soft: #f1eefa;
+  --color-on-primary: #ffffff;
+
+  /* ------------------------------------------- الوردي: لهجة دافئة */
+  --color-accent: #b83e6b;
+  --color-accent-hover: #9b3159;
+  --color-accent-tint: #f4c4d5;
+  --color-accent-soft: #fff2f6;
+
+  /* --------------------------------- الأخضر المزرقّ: لهجة محدودة */
+  --color-positive: #0f766e;
+  --color-positive-soft: #e4f3f1;
+
+  /* ------------------------------------ نصوص فوق الكتل الملوّنة */
+  --color-on-strong: #ffffff;
+  --color-on-tint: #211d2e;
+
+  /* ------------------------------- ألوان بطاقات هادئة ومتقاربة */
+  --tint-a: #f1eefa;
+  --tint-b: #fff2f6;
+  --tint-c: #f4eefb;
+  --tint-d: #eceaf9;
+  --tint-e: #e8f3f1;
+  --tint-f: #fdf1ea;
+
+  /* ------------------------------------------------------------ الحالات */
+  --color-danger: #a3244a;
+  --color-danger-soft: #fdeaf0;
+  --color-warning: #8a5712;
+  --color-warning-soft: #fbf1e2;
+  --color-success: #0f766e;
+  --color-success-soft: #e4f3f1;
+  --color-focus: #5b4bc4;
+
+  /* ------------------------------------------------------------ الظلال */
+  --shadow-soft: 0 1px 3px rgb(40 31 72 / 10%), 0 8px 24px -12px rgb(40 31 72 / 15%);
+  --shadow-lift: 0 4px 8px rgb(40 31 72 / 10%), 0 16px 40px -16px rgb(40 31 72 / 20%);
+
+  /*
+   * أنصاف الأقطار بالبكسل: لا تتضخم مع إعداد خط المتصفح.
+   */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  /* المسافات بالبكسل لثبات الإيقاع الرأسي */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 22px;
+  --space-6: 32px;
+  --space-7: 44px;
+  --space-8: 64px;
+
+  /* عرض المحتوى: ثابت بالبكسل ومستقل عن حجم خط المستخدم */
+  --container: 1180px;
+  --container-narrow: 760px;
+  --container-result: 940px;
+  --gutter: clamp(16px, 4vw, 32px);
+
+  /*
+   * خطوط النظام فقط: لا شبكة توصيل خارجية، ولا طلب شبكي إضافي،
+   * ولا تعارض مع سياسة أمان المحتوى.
+   */
+  --font-body: system-ui, "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-display: var(--font-body);
+
+  /* النصوص بوحدات نسبية حتى يعمل تكبير الخط لدى المستخدم */
+  --text-xs: 0.78rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: clamp(1.25rem, 1.12rem + 0.5vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 1.3rem + 0.9vw, 2rem);
+  --text-hero: clamp(1.9rem, 1.5rem + 1.7vw, 2.9rem);
+
+  --motion-fast: 140ms;
+  --motion-base: 240ms;
+}
+
+/* الوضع الداكن: نفس العائلة بإضاءة معكوسة وتشبّع أهدأ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-canvas: #13111b;
+    --color-surface: #1d1928;
+    --color-elevated: #272135;
+    --color-warm: #301d29;
+
+    --color-ink: #f7f4ff;
+    --color-ink-soft: #ded8ea;
+    --color-muted: #c2bbcd;
+
+    --color-border: #3d354c;
+    --color-border-strong: #6f6685;
+
+    --color-primary: #a99cff;
+    --color-primary-hover: #c0b7ff;
+    --color-primary-tint: #6a5cbf;
+    --color-primary-soft: #272135;
+    --color-on-primary: #13111b;
+
+    --color-accent: #f19ab6;
+    --color-accent-hover: #f7b6c9;
+    --color-accent-tint: #8d4661;
+    --color-accent-soft: #301d29;
+
+    --color-positive: #63d5c8;
+    --color-positive-soft: #1b3833;
+
+    --color-on-strong: #13111b;
+    --color-on-tint: #f7f4ff;
+
+    --tint-a: #272135;
+    --tint-b: #301d29;
+    --tint-c: #2a2338;
+    --tint-d: #232032;
+    --tint-e: #1d2f2c;
+    --tint-f: #302436;
+
+    --color-danger: #f492ac;
+    --color-danger-soft: #3a1c26;
+    --color-warning: #e8b473;
+    --color-warning-soft: #33261a;
+    --color-success: #63d5c8;
+    --color-success-soft: #1b3833;
+    --color-focus: #a99cff;
+
+    --shadow-soft: 0 1px 2px rgb(0 0 0 / 30%), 0 12px 28px -22px rgb(0 0 0 / 55%);
+    --shadow-lift: 0 2px 4px rgb(0 0 0 / 32%), 0 22px 44px -28px rgb(0 0 0 / 60%);
+  }
+}
+
+/* اختيار صريح للوضع الداكن من زر المظهر */
+:root[data-theme="dark"] {
+  --color-canvas: #13111b;
+  --color-surface: #1d1928;
+  --color-elevated: #272135;
+  --color-warm: #301d29;
+
+  --color-ink: #f7f4ff;
+  --color-ink-soft: #ded8ea;
+  --color-muted: #c2bbcd;
+
+  --color-border: #3d354c;
+  --color-border-strong: #6f6685;
+
+  --color-primary: #a99cff;
+  --color-primary-hover: #c0b7ff;
+  --color-primary-tint: #6a5cbf;
+  --color-primary-soft: #272135;
+  --color-on-primary: #13111b;
+
+  --color-accent: #f19ab6;
+  --color-accent-hover: #f7b6c9;
+  --color-accent-tint: #8d4661;
+  --color-accent-soft: #301d29;
+
+  --color-positive: #63d5c8;
+  --color-positive-soft: #1b3833;
+
+  --color-on-strong: #13111b;
+  --color-on-tint: #f7f4ff;
+
+  --tint-a: #272135;
+  --tint-b: #301d29;
+  --tint-c: #2a2338;
+  --tint-d: #232032;
+  --tint-e: #1d2f2c;
+  --tint-f: #302436;
+
+  --color-danger: #f492ac;
+  --color-danger-soft: #3a1c26;
+  --color-warning: #e8b473;
+  --color-warning-soft: #33261a;
+  --color-success: #63d5c8;
+  --color-success-soft: #1b3833;
+  --color-focus: #a99cff;
+
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 30%), 0 12px 28px -22px rgb(0 0 0 / 55%);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 32%), 0 22px 44px -28px rgb(0 0 0 / 60%);
+}

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 430" role="img" aria-labelledby="title desc">
+  <title id="title">الخصوصية داخل المتصفح</title>
+  <desc id="desc">نافذة متصفح مبسطة بداخلها قفل وبطاقتان تمثلان نتيجتين منفصلتين.</desc>
+  <rect x="52" y="48" width="416" height="325" rx="26" fill="#fffdf9" stroke="#211d2b" stroke-width="5"/>
+  <path d="M52 111h416" stroke="#211d2b" stroke-width="5"/>
+  <circle cx="91" cy="80" r="8" fill="#f2a06f"/>
+  <circle cx="119" cy="80" r="8" fill="#ddb5f2"/>
+  <circle cx="147" cy="80" r="8" fill="#788e67"/>
+  <rect x="91" y="149" width="133" height="164" rx="18" fill="#e9e5ff"/>
+  <rect x="296" y="149" width="133" height="164" rx="18" fill="#fbf1e7"/>
+  <circle cx="157" cy="196" r="25" fill="#d09268"/>
+  <path d="M125 263c9-33 23-47 34-47 13 0 28 16 35 47z" fill="#788e67"/>
+  <circle cx="363" cy="196" r="25" fill="#8b573e"/>
+  <path d="M331 263c10-33 24-47 35-47 13 0 28 16 34 47z" fill="#ddb5f2"/>
+  <path d="M226 227h68" stroke="#211d2b" stroke-width="5" stroke-linecap="round" stroke-dasharray="7 10"/>
+  <rect x="218" y="271" width="84" height="70" rx="14" fill="#f2a06f" stroke="#211d2b" stroke-width="5"/>
+  <path d="M237 272v-17c0-30 46-30 46 0v17" fill="none" stroke="#211d2b" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="260" cy="303" r="7" fill="#211d2b"/>
+  <path d="M260 310v12" stroke="#211d2b" stroke-width="5" stroke-linecap="round"/>
+</svg>

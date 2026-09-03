@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 430" role="img" aria-labelledby="title desc">
+  <title id="title">حوار متوازن بين شريكين</title>
+  <desc id="desc">شخصان بالغان بلا ملامح يحمل كل منهما بطاقة حوار في رسم تحريري هادئ.</desc>
+  <path d="M55 367h450" stroke="#211d2b" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="175" cy="112" r="38" fill="#8b573e"/>
+  <path d="M136 111c2-39 24-57 51-52 21 4 31 21 29 45-29-8-53-5-80 7z" fill="#211d2b"/>
+  <path d="M117 188c28-37 98-37 124 0l-12 113H129z" fill="#ddb5f2"/>
+  <path d="M145 220l-26 142M216 219l24 143" stroke="#8b573e" stroke-width="18" stroke-linecap="round"/>
+  <path d="M118 362H84M240 362h38" stroke="#211d2b" stroke-width="11" stroke-linecap="round"/>
+  <path d="M132 195c-29 19-45 37-59 66" stroke="#8b573e" stroke-width="18" stroke-linecap="round"/>
+  <rect x="48" y="225" width="105" height="75" rx="13" fill="#fbf1e7" stroke="#211d2b" stroke-width="4"/>
+  <path d="M70 250h59M70 269h40" stroke="#f2a06f" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="385" cy="108" r="39" fill="#d09268"/>
+  <path d="M345 107c4-37 17-54 47-54 23 0 36 18 34 46-24-3-47 0-71 12z" fill="#352b3a"/>
+  <path d="M320 187c30-38 101-38 129 0l-12 114H333z" fill="#788e67"/>
+  <path d="M346 218l-24 144M424 218l28 144" stroke="#d09268" stroke-width="18" stroke-linecap="round"/>
+  <path d="M322 362h-35M452 362h38" stroke="#211d2b" stroke-width="11" stroke-linecap="round"/>
+  <path d="M434 194c27 19 43 39 54 70" stroke="#d09268" stroke-width="18" stroke-linecap="round"/>
+  <rect x="409" y="228" width="105" height="75" rx="13" fill="#e9e5ff" stroke="#211d2b" stroke-width="4"/>
+  <path d="M431 252h59M450 273h40" stroke="#607652" stroke-width="7" stroke-linecap="round"/>
+  <path d="M247 103c16-23 53-25 72-4 18 19 12 48-7 63l-31 25-32-23c-22-15-24-42-2-61z" fill="#f2a06f"/>
+  <path d="M272 128h21" stroke="#211d2b" stroke-width="5" stroke-linecap="round"/>
+</svg>

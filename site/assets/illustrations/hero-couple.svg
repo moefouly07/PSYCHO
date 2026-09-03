@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 560" role="img" aria-labelledby="title desc">
+  <title id="title">شخصان بالغان يتحاوران بهدوء</title>
+  <desc id="desc">رسم تحريري مبسط لشخصين بلا ملامح وجه يجلسان متقابلين قرب نافذة ونبتة.</desc>
+  <rect x="58" y="44" width="504" height="416" rx="28" fill="#fffdf9" stroke="#ded8d2" stroke-width="4"/>
+  <rect x="90" y="78" width="440" height="230" rx="18" fill="#e9e5ff"/>
+  <path d="M310 78v230M90 196h440" fill="none" stroke="#211d2b" stroke-width="4"/>
+  <path d="M115 260c42-25 69-47 105-42 44 6 57 51 98 51 38 0 58-51 105-48 36 2 58 28 83 47v40H115z" fill="#fcfaf7"/>
+  <path d="M111 415h398" stroke="#211d2b" stroke-width="5" stroke-linecap="round"/>
+  <path d="M150 333h132a24 24 0 0 1 24 24v46H129v-49a21 21 0 0 1 21-21z" fill="#f2a06f"/>
+  <path d="M354 333h118a22 22 0 0 1 22 22v48H333v-49a21 21 0 0 1 21-21z" fill="#788e67"/>
+  <circle cx="226" cy="230" r="31" fill="#b87855"/>
+  <path d="M193 226c2-29 18-45 42-42 19 2 28 16 28 35-20-8-43-4-70 7z" fill="#211d2b"/>
+  <path d="M178 281c20-27 78-29 101 2l-9 64h-91z" fill="#ddb5f2"/>
+  <path d="M196 281c17 26 31 38 58 52" fill="none" stroke="#b87855" stroke-width="17" stroke-linecap="round"/>
+  <path d="M257 333c28-3 58-2 87 8" fill="none" stroke="#b87855" stroke-width="15" stroke-linecap="round"/>
+  <circle cx="401" cy="232" r="33" fill="#7b4b35"/>
+  <path d="M367 231c3-35 19-51 45-45 16 4 25 19 24 38-28-7-49-3-69 7z" fill="#2f2536"/>
+  <path d="M348 286c23-28 78-30 103 0l-8 62h-88z" fill="#f4b179"/>
+  <path d="M370 294c-16 25-28 34-49 44" fill="none" stroke="#7b4b35" stroke-width="16" stroke-linecap="round"/>
+  <path d="M317 338c-25-2-44-1-64 5" fill="none" stroke="#7b4b35" stroke-width="14" stroke-linecap="round"/>
+  <ellipse cx="311" cy="342" rx="9" ry="5" fill="#211d2b"/>
+  <path d="M187 403l-26 77M256 403l29 77M367 403l-17 77M448 403l33 77" fill="none" stroke="#211d2b" stroke-width="12" stroke-linecap="round"/>
+  <path d="M139 483h52M265 483h51M325 483h53M462 483h48" stroke="#211d2b" stroke-width="9" stroke-linecap="round"/>
+  <path d="M507 399v-96" stroke="#211d2b" stroke-width="5"/>
+  <path d="M506 333c-37-20-42-46-16-54 24-7 27 26 16 54z" fill="#788e67"/>
+  <path d="M507 356c38-19 46-44 22-55-25-11-31 24-22 55z" fill="#607652"/>
+  <path d="M479 391h57l-8 36h-41z" fill="#f2a06f"/>
+  <circle cx="301" cy="131" r="10" fill="#f2a06f"/>
+  <circle cx="333" cy="131" r="10" fill="#ddb5f2"/>
+  <path d="M311 131h12" stroke="#211d2b" stroke-width="4" stroke-linecap="round"/>
+</svg>

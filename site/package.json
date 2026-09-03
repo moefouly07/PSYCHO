@@ -1,0 +1,16 @@
+{
+  "name": "baynana-assessments",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A private-by-design, Arabic-first premarital reflection site for two adults: behavioral assessments, neutral alignment maps, a conversation library, and a same-device knowledge challenge.",
+  "scripts": {
+    "validate": "node scripts/validate-assessments.js && node scripts/validate-alignment.js && node scripts/validate-conversation.js && node scripts/validate-knowledge.js && node scripts/validate-sources.js",
+    "test:core": "node scripts/test-core.mjs",
+    "test:engines": "node scripts/test-engines.mjs",
+    "test:views": "node scripts/test-views.mjs",
+    "test": "npm run validate && npm run test:core && npm run test:engines && npm run test:views && npm run test:links",
+    "serve": "python -m http.server 5173",
+    "test:links": "node scripts/test-links.mjs"
+  }
+}

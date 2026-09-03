@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#edf1f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1211" media="(prefers-color-scheme: dark)">
+<title>اختبار وضوح المشاعر</title>
+<meta name="description" content="اختبار وضوح المشاعر: ١٨ سؤالًا وست مهارات، مع خريطة مشتركة تقارن نتيجتين.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%230e5f55' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%230e5f55'/%3E%3C/svg%3E">
+</head>
+<body><style>
+  :root{
+    --ground:#edf1f0;
+    --surface:#fbfcfc;
+    --sunk:#e4eae8;
+    --ink:#131e1c;
+    --muted:#5a6a66;
+    --line:#d1dbd8;
+    --line-soft:#e0e7e5;
+    --you:#0e5f55;
+    --you-soft:#dbe9e6;
+    --partner:#8f6210;
+    --partner-soft:#f0e7d4;
+    --shadow:0 1px 2px rgba(19,30,28,.05), 0 8px 24px -18px rgba(19,30,28,.35);
+    --font-display:"Noto Naskh Arabic","Traditional Arabic","Amiri","SF Arabic","Geeza Pro","Times New Roman",serif;
+    --font-body:"SF Arabic","Segoe UI Variable Text","Segoe UI","Noto Sans Arabic","Dubai",Tahoma,system-ui,sans-serif;
+    --step:clamp(14px,1.6vw,17px);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0b1211;
+      --surface:#131d1b;
+      --sunk:#0f1817;
+      --ink:#e7efed;
+      --muted:#96a8a3;
+      --line:#28352f;
+      --line-soft:#1e2a27;
+      --you:#5cc3b2;
+      --you-soft:#16302c;
+      --partner:#dfab52;
+      --partner-soft:#2e2617;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -20px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#edf1f0; --surface:#fbfcfc; --sunk:#e4eae8; --ink:#131e1c; --muted:#5a6a66;
+    --line:#d1dbd8; --line-soft:#e0e7e5; --you:#0e5f55; --you-soft:#dbe9e6;
+    --partner:#8f6210; --partner-soft:#f0e7d4;
+    --shadow:0 1px 2px rgba(19,30,28,.05), 0 8px 24px -18px rgba(19,30,28,.35);
+  }
+  :root[data-theme="dark"]{
+    --ground:#0b1211; --surface:#131d1b; --sunk:#0f1817; --ink:#e7efed; --muted:#96a8a3;
+    --line:#28352f; --line-soft:#1e2a27; --you:#5cc3b2; --you-soft:#16302c;
+    --partner:#dfab52; --partner-soft:#2e2617;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -20px rgba(0,0,0,.9);
+  }
+
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:var(--step);
+    line-height:1.85;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    direction:rtl;
+    text-align:right;
+    max-width:44rem;
+    margin:0 auto;
+    padding:clamp(20px,4vw,48px) clamp(16px,4vw,28px) 64px;
+  }
+  .display{font-family:var(--font-display);}
+  h1,h2,h3{font-family:var(--font-display);font-weight:600;margin:0;text-wrap:balance;line-height:1.5;}
+  h1{font-size:clamp(1.5rem,4.6vw,2rem);}
+  h2{font-size:clamp(1.18rem,3.2vw,1.4rem);}
+  h3{font-size:1.02rem;font-family:var(--font-body);font-weight:600;}
+  p{margin:0;}
+  .num{font-variant-numeric:tabular-nums;}
+
+  /* ---- masthead: a measuring rule with one tick ---- */
+  .masthead{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+  .rule{display:flex;align-items:flex-end;gap:0;height:12px;}
+  .rule i{display:block;flex:1;height:1px;background:var(--line);}
+  .rule b{display:block;width:2px;height:11px;background:var(--you);}
+  .eyebrow{color:var(--muted);font-size:.82rem;line-height:1.6;}
+  .lede{color:var(--muted);font-size:1.02rem;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line-soft);
+    border-radius:5px;
+    padding:clamp(18px,3.4vw,26px);
+    box-shadow:var(--shadow);
+  }
+  .stack{display:flex;flex-direction:column;gap:18px;}
+  .stack-s{display:flex;flex-direction:column;gap:10px;}
+  .stack-l{display:flex;flex-direction:column;gap:30px;}
+
+  .meta{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);font-size:.85rem;}
+  .steps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px;counter-reset:s;}
+  .steps li{display:flex;gap:12px;align-items:flex-start;counter-increment:s;}
+  .steps li::before{
+    content:counter(s);
+    flex:none;width:1.55em;height:1.55em;margin-top:.32em;
+    display:grid;place-items:center;
+    border:1px solid var(--line);border-radius:2px;
+    color:var(--muted);font-size:.76rem;font-variant-numeric:tabular-nums;
+  }
+  .note{
+    background:var(--sunk);
+    border:1px solid var(--line-soft);
+    border-radius:4px;
+    padding:14px 16px;
+    color:var(--muted);
+    font-size:.88rem;
+  }
+
+  label.field{display:flex;flex-direction:column;gap:7px;font-size:.9rem;color:var(--muted);}
+  input[type="text"],textarea{
+    font-family:inherit;font-size:1rem;color:var(--ink);
+    background:var(--ground);
+    border:1px solid var(--line);border-radius:4px;
+    padding:11px 13px;width:100%;
+    direction:rtl;
+  }
+  textarea{direction:ltr;text-align:left;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.8rem;line-height:1.6;resize:vertical;min-height:76px;}
+  input[type="text"]:focus,textarea:focus{border-color:var(--you);outline:none;}
+  :focus-visible{outline:2px solid var(--you);outline-offset:2px;}
+
+  .btn{
+    font-family:inherit;font-size:.98rem;
+    background:var(--you);color:var(--surface);
+    border:1px solid var(--you);border-radius:4px;
+    padding:11px 24px;cursor:pointer;
+  }
+  .btn:disabled{background:transparent;color:var(--muted);border-color:var(--line);cursor:not-allowed;}
+  .btn.ghost{background:transparent;color:var(--you);}
+  .btn.quiet{background:transparent;color:var(--muted);border-color:var(--line);}
+  .btn-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .btn-row.split{justify-content:space-between;}
+
+  /* ---- quiz ---- */
+  .gauge{display:flex;flex-direction:column;gap:8px;}
+  .ticks{display:flex;align-items:flex-end;gap:3px;height:20px;}
+  .ticks span{flex:1;height:6px;background:var(--line);border-radius:1px;}
+  .ticks span.done{height:13px;background:var(--you);}
+  .ticks span.now{height:20px;background:var(--ink);}
+  .gauge .eyebrow{display:flex;justify-content:space-between;}
+
+  .prompt{font-family:var(--font-display);font-size:clamp(1.16rem,3.3vw,1.42rem);line-height:1.75;}
+  .opts{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line-soft);}
+  .opt{
+    font-family:inherit;font-size:1rem;line-height:1.75;color:var(--ink);text-align:right;
+    background:transparent;border:0;border-bottom:1px solid var(--line-soft);
+    padding:15px 4px;cursor:pointer;
+    display:flex;gap:13px;align-items:flex-start;
+    width:100%;
+  }
+  .opt .mark{
+    flex:none;width:13px;height:13px;margin-top:.42em;
+    border:1px solid var(--muted);border-radius:2px;background:transparent;
+  }
+  .opt:hover .mark{border-color:var(--you);}
+  .opt[aria-checked="true"]{color:var(--you);}
+  .opt[aria-checked="true"] .mark{background:var(--you);border-color:var(--you);}
+  .opt .txt{flex:1;}
+
+  /* ---- result ---- */
+  .score{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+  .score .big{font-family:var(--font-display);font-size:clamp(2.6rem,9vw,3.6rem);line-height:1;font-variant-numeric:tabular-nums;}
+  .score .band{font-family:var(--font-display);font-size:1.15rem;color:var(--you);}
+  .chart{margin:0 auto;display:block;width:100%;max-width:24rem;}
+  .chart text{font-family:var(--font-body);}
+  .legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:.86rem;color:var(--muted);}
+  .legend b{display:inline-block;width:22px;height:0;border-top:2px solid;vertical-align:middle;margin-inline-end:7px;}
+
+  .rows{display:flex;flex-direction:column;}
+  .row{display:flex;gap:14px;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--line-soft);}
+  .row:last-child{border-bottom:0;}
+  .row .val{flex:none;min-width:3.4em;text-align:left;font-variant-numeric:tabular-nums;color:var(--you);}
+  .row .body{flex:1;}
+  .row .body small{display:block;color:var(--muted);font-size:.88rem;line-height:1.7;}
+  .row .dot{flex:none;width:9px;height:9px;border-radius:50%;margin-top:.55em;background:var(--you);}
+  .row .dot.hollow{background:transparent;border:1.5px solid var(--muted);}
+
+  /* ---- dumbbell ---- */
+  .pair{display:flex;flex-direction:column;gap:2px;padding:15px 0;border-bottom:1px solid var(--line-soft);}
+  .pair:last-child{border-bottom:0;}
+  .pair .head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;}
+  .pair .head .gap{font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .track{position:relative;height:26px;margin-top:4px;}
+  .track::before{content:"";position:absolute;inset-inline:0;top:12px;height:2px;background:var(--line-soft);}
+  .track .span{position:absolute;top:12px;height:2px;background:var(--line);}
+  .track .pin{position:absolute;top:6px;width:14px;height:14px;margin-inline-start:-7px;border-radius:50%;}
+  .track .pin.a{background:var(--you);}
+  .track .pin.b{background:var(--partner);}
+  .track .cap{position:absolute;top:-2px;font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .talk{display:flex;flex-direction:column;gap:14px;}
+  .talk article{display:flex;flex-direction:column;gap:3px;padding-inline-start:14px;border-inline-start:1px solid var(--line);}
+  .talk h3{color:var(--ink);}
+  .talk .tag{font-size:.78rem;color:var(--muted);}
+  .talk p{color:var(--muted);font-size:.95rem;line-height:1.8;}
+
+  .code-out{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:.78rem;line-height:1.7;
+    background:var(--sunk);border:1px solid var(--line-soft);border-radius:4px;
+    padding:12px 13px;direction:ltr;text-align:left;
+    word-break:break-all;user-select:all;
+  }
+  .said{font-size:.86rem;color:var(--you);min-height:1.4em;}
+  .said.bad{color:var(--partner);}
+  .foot{color:var(--muted);font-size:.83rem;line-height:1.8;}
+  hr.sep{border:0;border-top:1px solid var(--line);margin:0;}
+
+  @media (prefers-reduced-motion:no-preference){
+    .opt,.btn,.ticks span{transition:all .16s ease;}
+    .fade{animation:fade .22s ease both;}
+    @keyframes fade{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+  }
+</style>
+
+<div class="wrap" lang="ar" dir="rtl">
+
+  <header class="masthead">
+    <div class="rule"><b></b><i></i></div>
+    <h1>اختبار وضوح المشاعر</h1>
+    <p class="lede">إلى أي مدى تستطيع ملاحظة مشاعرك وفهمها والتعبير عنها بدقة؟ نسخة لشخصين: كل واحد يجيب بنفسه، ثم تظهر لكما خريطة واحدة تقارن بين الاثنين.</p>
+  </header>
+
+  <main id="stage">
+
+    <!-- ============ INTRO ============ -->
+    <section id="view-intro" class="stack-l">
+      <div class="card stack">
+        <div class="meta">
+          <span class="num">١٨ سؤالًا</span>
+          <span class="num">٧ دقائق تقريبًا</span>
+          <span>٦ مهارات</span>
+        </div>
+        <p>تقييم ذاتي إرشادي لست مهارات مترابطة تكوّن وضوح المشاعر، دون تقديم تشخيص نفسي أو طبي.</p>
+        <hr class="sep">
+        <h2>قبل أن تبدأ</h2>
+        <ol class="steps" id="intro-steps"></ol>
+        <div class="note" id="intro-disclaimer"></div>
+      </div>
+
+      <div class="card stack">
+        <h2>كيف تعمل النسخة المشتركة؟</h2>
+        <ol class="steps">
+          <li>كل واحد منكما يجيب على الأسئلة بنفسه، ومن غير أن يرى إجابات الآخر.</li>
+          <li>في نهاية الاختبار يظهر لك «كود نتيجتك». انسخه وابعته لشريكك مع رابط الصفحة.</li>
+          <li>الصق كود شريكك في الخانة المخصصة، فتظهر الخريطة المشتركة ونقاط الحوار بينكما.</li>
+        </ol>
+        <div class="note">الكود يحتوي على اسمك وإجاباتك فقط. لا يُرسل أي شيء إلى أي جهة، ولا يخرج من الصفحة إلا عندما تنسخه بنفسك وتبعته لمن تريد.</div>
+      </div>
+
+      <div class="card stack">
+        <label class="field">
+          اسمك الأول
+          <input type="text" id="name-input" maxlength="24" autocomplete="off" placeholder="يظهر في الخريطة المشتركة فقط">
+        </label>
+        <div class="btn-row">
+          <button class="btn" id="btn-start" disabled>ابدأ الاختبار</button>
+          <button class="btn quiet" id="btn-resume" hidden>افتح نتيجتي السابقة</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ QUIZ ============ -->
+    <section id="view-quiz" hidden class="stack-l">
+      <div class="gauge">
+        <div class="ticks" id="ticks" aria-hidden="true"></div>
+        <div class="eyebrow">
+          <span id="q-pos" class="num"></span>
+          <span id="q-left" class="num"></span>
+        </div>
+      </div>
+      <div class="card stack" id="q-card">
+        <p class="prompt" id="q-prompt"></p>
+        <div class="opts" id="q-opts" role="radiogroup" aria-labelledby="q-prompt"></div>
+        <div class="btn-row split">
+          <button class="btn quiet" id="btn-back">السابق</button>
+          <button class="btn" id="btn-next" disabled>التالي</button>
+        </div>
+      </div>
+      <p class="foot">اختر بلوحة المفاتيح: ١ أو ٢ أو ٣ للإجابة، ثم Enter للانتقال.</p>
+    </section>
+
+    <!-- ============ RESULT ============ -->
+    <section id="view-result" hidden class="stack-l">
+
+      <div class="card stack">
+        <p class="eyebrow" id="r-owner"></p>
+        <div class="score">
+          <span class="big num" id="r-pct"></span>
+          <span class="band" id="r-band"></span>
+        </div>
+        <p id="r-summary"></p>
+        <hr class="sep">
+        <svg class="chart" id="r-chart" viewBox="0 0 440 380" role="img" aria-labelledby="r-chart-t"><title id="r-chart-t">خريطة المهارات الست</title></svg>
+        <div class="legend" id="r-legend" hidden></div>
+      </div>
+
+      <div class="card stack">
+        <h2 id="r-strengths-h">أوضح جوانبك</h2>
+        <div class="rows" id="r-strengths"></div>
+        <p class="foot" id="r-strength-note"></p>
+      </div>
+
+      <div class="card stack" id="r-growth-card">
+        <h2>الجوانب الأولى بالتطوير</h2>
+        <div class="rows" id="r-growth"></div>
+        <p class="foot" id="r-growth-note"></p>
+      </div>
+
+      <div class="card stack">
+        <h2>تحليل مختصر للمهارات الست</h2>
+        <div class="rows" id="r-all"></div>
+      </div>
+
+      <!-- pairing -->
+      <div class="card stack" id="pair-card">
+        <h2>خريطتكما معًا</h2>
+        <p class="foot" id="pair-intro">ابعت كودك لشريكك، والصق كوده هنا لتظهر المقارنة.</p>
+
+        <div class="stack-s">
+          <h3>كودك</h3>
+          <div class="code-out" id="my-code"></div>
+          <div class="btn-row">
+            <button class="btn ghost" id="btn-copy">انسخ كودي</button>
+            <span class="said" id="copy-said" role="status" aria-live="polite"></span>
+          </div>
+        </div>
+
+        <hr class="sep">
+
+        <div class="stack-s">
+          <h3>كود شريكك</h3>
+          <textarea id="peer-code" spellcheck="false" placeholder="EC1...."></textarea>
+          <div class="btn-row">
+            <button class="btn" id="btn-pair">اعرض المقارنة</button>
+            <span class="said" id="pair-said" role="status" aria-live="polite"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="cmp" hidden class="stack-l">
+        <div class="card stack">
+          <h2 id="cmp-title">المقارنة</h2>
+          <p class="foot" id="cmp-honest"></p>
+          <svg class="chart" id="cmp-chart" viewBox="0 0 440 380" role="img" aria-labelledby="cmp-chart-t"><title id="cmp-chart-t">خريطة المهارات للاثنين</title></svg>
+          <div class="legend" id="cmp-legend"></div>
+        </div>
+        <div class="card stack">
+          <h2>الفروق بينكما، مهارة بمهارة</h2>
+          <p class="foot">الصفر على اليمين والمئة على اليسار. طول الخط بين النقطتين هو حجم الفرق. الترتيب من أكبر فرق إلى أصغره.</p>
+          <div id="cmp-rows"></div>
+          <p class="foot">كل مهارة مبنية على ثلاثة أسئلة فقط، لذلك أي فرق أقل من ١٧ نقطة لا يُقرأ كاختلاف حقيقي بينكما.</p>
+        </div>
+        <div class="card stack">
+          <h2>نقاط تستحق الحديث</h2>
+          <div class="talk" id="cmp-talk"></div>
+        </div>
+      </div>
+
+      <div class="card stack">
+        <div class="note" id="r-disclaimer"></div>
+        <p class="foot">اقرأ النتيجة كخريطة للمهارات الحالية، لا كحكم ثابت على شخصيتك.</p>
+        <div class="btn-row">
+          <button class="btn quiet" id="btn-restart">إعادة الاختبار من البداية</button>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <p class="foot" style="margin-top:34px">تقييم ذاتي إرشادي أصلي مستند إلى أبحاث وضوح المشاعر. حدود النتائج أولية وليست معايير سكانية أو نقاط قطع سريرية.</p>
+</div>
+
+<script>
+"use strict";
+
+/* ========== 1. TEST CONTENT (verbatim from emotional-clarity-test-ar.json) ========== */
+const TEST = {
+  instructions:[
+    "فكّر في سلوكك المعتاد خلال الأشهر الثلاثة الأخيرة، لا في أفضل نسخة تتمنى أن تكون عليها.",
+    "اختر الإجابة الأقرب لما تفعله فعليًا، حتى لو لم تكن الإجابة التي تراها مثالية.",
+    "إذا اختلف سلوكك باختلاف المواقف، اختر ما يحدث في أغلب المواقف المهمة.",
+    "لا توجد إجابة صحيحة أو خاطئة، ولا تُعرض درجات الإجابات للمستخدم."
+  ],
+  disclaimer:"هذا تقييم ذاتي إرشادي أصلي مستند إلى أبحاث وضوح المشاعر، وليس اختبارًا تشخيصيًا أو بديلًا عن التقييم الذي يجريه مختص مؤهل. النسب تعبّر عن الدرجة داخل هذا الاختبار، ولا تعبّر عن احتمال وجود اضطراب نفسي.",
+  dimensions:[
+    {id:"noticing",name:"ملاحظة المشاعر",short:"الملاحظة",itemIds:["ec01","ec02","ec03"]},
+    {id:"body_signals",name:"قراءة إشارات الجسد",short:"إشارات الجسد",itemIds:["ec04","ec05","ec06"]},
+    {id:"labeling",name:"تسمية المشاعر",short:"التسمية",itemIds:["ec07","ec08","ec09"]},
+    {id:"differentiation",name:"تمييز المشاعر المتقاربة",short:"التمييز",itemIds:["ec10","ec11","ec12"]},
+    {id:"causal_understanding",name:"فهم الأسباب والاحتياجات",short:"الأسباب",itemIds:["ec13","ec14","ec15"]},
+    {id:"expression",name:"التعبير العاطفي",short:"التعبير",itemIds:["ec16","ec17","ec18"]}
+  ],
+  questions:[
+    {id:"ec01",dim:"noticing",prompt:"بعد نقاش مشحون، بدأت تتصرف بحدة مع أشخاص لم يكونوا طرفًا فيه. متى تنتبه عادةً إلى تغيّر حالتك؟",options:[
+      {t:"بعد أن يلفت شخص آخر انتباهي أو أراجع ما فعلته لاحقًا.",s:0},
+      {t:"ألاحظ أثناء تصرفي أن مزاجي تغيّر، لكن يصعب عليّ التوقف وتحديد ما يحدث.",s:1},
+      {t:"ألتقط التغير في بدايته وأمنح نفسي لحظة قبل أن ينتقل إلى تصرفاتي.",s:2}]},
+    {id:"ec02",dim:"noticing",prompt:"في يوم مزدحم، كيف تكتشف عادةً أن ضغطك العاطفي ارتفع؟",options:[
+      {t:"لا أكتشفه غالبًا إلا بعد أن أفقد تركيزي أو أنفعل.",s:0},
+      {t:"أشعر بأنني لست على ما يرام، لكن الإشارة تظل عامة وغير واضحة.",s:1},
+      {t:"ألاحظ مبكرًا تغير توتري أو أفكاري أو رغبتي في الانسحاب.",s:2}]},
+    {id:"ec03",dim:"noticing",prompt:"عندما يحدث لك أمر سار بصورة مفاجئة، ما الأقرب إلى تجربتك؟",options:[
+      {t:"أندفع إلى التصرف أو الحديث دون أن أنتبه بوضوح لما أشعر به.",s:0},
+      {t:"أعرف أن مزاجي تحسن، ثم أفهم شعوري بصورة أوضح بعد قليل.",s:1},
+      {t:"ألاحظ مبكرًا نوع الشعور الإيجابي وقوته، مثل الفرح أو الارتياح أو الفخر.",s:2}]},
+    {id:"ec04",dim:"body_signals",prompt:"شعرت فجأة بانقباض في صدرك أو معدتك قبل موقف مهم. كيف تتعامل مع الإشارة؟",options:[
+      {t:"أتجاهلها أو أعتبرها تعبًا جسديًا فقط دون فحص السياق.",s:0},
+      {t:"ألاحظ أن جسدي متوتر، لكن لا أعرف عادةً بما يرتبط ذلك.",s:1},
+      {t:"أتعامل معها كقرينة، وأراجع الموقف ومشاعري مع مراعاة احتمال وجود سبب بدني.",s:2}]},
+    {id:"ec05",dim:"body_signals",prompt:"قبل أن يرتفع غضبك، أي وصف يشبهك أكثر؟",options:[
+      {t:"لا أنتبه غالبًا إلا بعد ارتفاع صوتي أو قيامي بتصرف حاد.",s:0},
+      {t:"ألاحظ توتر جسدي، لكن يكون الغضب قد أصبح قويًا بالفعل.",s:1},
+      {t:"ألتقط إشارات مبكرة مثل شد الفك أو الحرارة أو تغير التنفس.",s:2}]},
+    {id:"ec06",dim:"body_signals",prompt:"عندما يجتمع الإرهاق مع مزاج سيئ، كيف تحدد ما إذا كان السبب بدنيًا أم عاطفيًا؟",options:[
+      {t:"أفترض أول تفسير يخطر لي، مثل التعب أو سوء المزاج، ولا أراجعه.",s:0},
+      {t:"أعرف أن السببين محتملان، لكن يظل الفصل بينهما صعبًا.",s:1},
+      {t:"أراجع النوم والجوع والألم والسياق والأفكار قبل الوصول إلى تفسير مبدئي.",s:2}]},
+    {id:"ec07",dim:"labeling",prompt:"ألغى شخص مهم موعدًا كنت تنتظره. كيف تصف شعورك لنفسك؟",options:[
+      {t:"أشعر بأنني سيئ أو منزعج فقط.",s:0},
+      {t:"أحدد شعورًا عامًا مثل الحزن أو الغضب.",s:1},
+      {t:"أحدد وصفًا أدق مثل خيبة الأمل أو التجاهل أو القلق من قلة الاهتمام.",s:2}]},
+    {id:"ec08",dim:"labeling",prompt:"حققت نجاحًا مهمًا لكنك شعرت بعده بعدم ارتياح. ما الأقرب لطريقتك في فهم ذلك؟",options:[
+      {t:"أتجاهل عدم الارتياح لأن المفترض أن أكون سعيدًا.",s:0},
+      {t:"أعرف أن لدي مشاعر متضاربة، لكن لا أستطيع تحديدها.",s:1},
+      {t:"أستطيع تسمية أكثر من شعور، مثل الفخر مع القلق أو الفرح مع الخوف من التوقعات.",s:2}]},
+    {id:"ec09",dim:"labeling",prompt:"لو طُلب منك وصف شعورك الآن دون شرح الأحداث، ماذا يحدث غالبًا؟",options:[
+      {t:"أصف ما حدث أو ما أفكر فيه بدل أن أسمّي شعوري.",s:0},
+      {t:"أستخدم كلمات عامة مثل مرتاح أو متضايق.",s:1},
+      {t:"أذكر شعورًا محددًا ودرجته، مثل قلق خفيف أو إحباط قوي.",s:2}]},
+    {id:"ec10",dim:"differentiation",prompt:"وجّه إليك شخص تثق به نقدًا أمام الآخرين. كيف تفهم رد فعلك الداخلي؟",options:[
+      {t:"أشعر بمزيج مؤلم لا أستطيع فصله.",s:0},
+      {t:"أحدد الشعور الأقوى، مثل الغضب، وأتوقف عنده.",s:1},
+      {t:"أميز بين طبقات مثل الإحراج والجرح والغضب، وأعرف أيها أقوى.",s:2}]},
+    {id:"ec11",dim:"differentiation",prompt:"قبل تجربة جديدة، كانت دقات قلبك سريعة وطاقتك مرتفعة. كيف تفرق بين القلق والحماس؟",options:[
+      {t:"أسمّي الحالة توترًا دون محاولة التمييز.",s:0},
+      {t:"أختار أحد الشعورين بناءً على قوة الإحساس الجسدي.",s:1},
+      {t:"أراجع السياق وأفكاري وما أرغب في فعله لأعرف إن كان قلقًا أو حماسًا أو كليهما.",s:2}]},
+    {id:"ec12",dim:"differentiation",prompt:"أثناء خلاف عاطفي، كيف تتعامل مع وجود أكثر من شعور في الوقت نفسه؟",options:[
+      {t:"تبدو لي المشاعر السلبية كلها شيئًا واحدًا ضاغطًا.",s:0},
+      {t:"أميز عادةً بين شعورين عامين، مثل الحزن والغضب.",s:1},
+      {t:"أحدد الشعور الأساسي والمشاعر المصاحبة، مثل الخوف الذي يظهر في صورة غضب.",s:2}]},
+    {id:"ec13",dim:"causal_understanding",prompt:"تغيّر مزاجك بعد قراءة رسالة قصيرة تحتمل أكثر من معنى. كيف تفسر ما شعرت به؟",options:[
+      {t:"أعتبر أن الرسالة سببت شعوري مباشرة ولا أبحث أبعد من ذلك.",s:0},
+      {t:"أعرف أنني ربما فسرتها بطريقة معينة، لكن يصعب عليّ تحديدها.",s:1},
+      {t:"أفصل بين نص الرسالة وتفسيري لها وتوقعاتي السابقة قبل استنتاج السبب.",s:2}]},
+    {id:"ec14",dim:"causal_understanding",prompt:"شعرت بضيق شديد من طلب بسيط قدمه لك شخص قريب. ما الأقرب لطريقتك؟",options:[
+      {t:"أفترض أن المشكلة في الشخص أو في الطلب نفسه.",s:0},
+      {t:"ألاحظ أن رد فعلي أكبر من الموقف، لكن لا أعرف السبب.",s:1},
+      {t:"أفحص إن كان وراء الضيق ضغط متراكم أو حد تم تجاوزه أو احتياج لم أقله.",s:2}]},
+    {id:"ec15",dim:"causal_understanding",prompt:"لاحظت أن موقفًا معينًا يثير فيك الاستجابة العاطفية نفسها كل مرة. ماذا تفعل عادةً؟",options:[
+      {t:"أراه تقلبًا عشوائيًا أو جزءًا ثابتًا من شخصيتي.",s:0},
+      {t:"أتعرف إلى الموقف المتكرر، لكن لا أصل إلى ما يجعله مؤثرًا.",s:1},
+      {t:"أبحث عن النمط المشترك وما يلمسه من خوف أو قيمة أو احتياج لديّ.",s:2}]},
+    {id:"ec16",dim:"expression",prompt:"جرحك تصرف من صديق أو شريك، كيف تعبّر عنه غالبًا؟",options:[
+      {t:"أكتمه تمامًا أو أخرجه لاحقًا في صورة انفجار أو ابتعاد.",s:0},
+      {t:"أقول إنني متضايق، لكن رسالتي تظل عامة أو يغلب عليها اللوم.",s:1},
+      {t:"أحدد الشعور والتصرف الذي أثر فيّ وما أحتاجه أو أطلبه بوضوح.",s:2}]},
+    {id:"ec17",dim:"expression",prompt:"عندما يسألك شخص موثوق: «كيف أستطيع مساعدتك الآن؟» ماذا تجيب عادةً؟",options:[
+      {t:"أقول لا شيء أو لا أعرف، حتى عندما أكون محتاجًا إلى دعم.",s:0},
+      {t:"أطلب دعمًا عامًا مثل أن يبقى بجانبي أو يطمئنني.",s:1},
+      {t:"أوضح نوع الدعم الذي يناسبني، مثل الاستماع أو المساحة أو المساعدة العملية.",s:2}]},
+    {id:"ec18",dim:"expression",prompt:"لديك مشاعر مختلطة وتخشى أن يُساء فهمك. ما الأقرب إلى سلوكك؟",options:[
+      {t:"أخفي مشاعري أو أتحدث بطريقة غير مباشرة حتى لا أتعرض للحكم.",s:0},
+      {t:"أشارك جزءًا من شعوري، لكن يصعب عليّ شرح التعقيد أو التناقض.",s:1},
+      {t:"أختار وقتًا آمنًا وأشرح أن لدي أكثر من شعور دون مطالبة الطرف الآخر بتخمينه.",s:2}]}
+  ],
+  bands:[
+    {id:"limited",min:0,max:39,label:"وضوح محدود",
+     summary:"تصل إليك المشاعر غالبًا في صورة توتر أو اندفاع أو رغبة في الانسحاب قبل أن تجد لها اسمًا واضحًا. هذا لا يعني غياب المشاعر، بل يعني أن ترجمتها إلى معلومات مفهومة ما زالت تحتاج إلى تدريب.",
+     strength:"لديك إشارات عاطفية حقيقية يمكن البناء عليها، حتى لو كانت تظهر أولًا في الجسد أو السلوك.",
+     growth:"ابدأ بتوقف قصير ثلاث مرات يوميًا واسأل: ماذا يحدث في جسدي؟ ما أقرب اسم للشعور؟ وما الذي سبقه مباشرة؟"},
+    {id:"emerging",min:40,max:59,label:"وضوح في طور النمو",
+     summary:"تلاحظ غالبًا أن حالتك تغيرت، لكن تحديد الشعور أو سببه يصبح أصعب عندما تكون المشاعر قوية أو متداخلة. لديك أساس جيد، لكنه لا يعمل بالثبات نفسه تحت الضغط.",
+     strength:"تستطيع التقاط جزء مهم من التجربة العاطفية ولا تبدأ من الصفر.",
+     growth:"درّب نفسك على الانتقال من الكلمات العامة إلى كلمتين أكثر دقة، ثم افصل بين الحدث وتفسيرك له."},
+    {id:"good",min:60,max:79,label:"وضوح جيد",
+     summary:"تفهم مشاعرك وتستطيع تسميتها في معظم المواقف، كما تربطها بالسياق والاحتياجات بدرجة جيدة. قد ينخفض هذا الوضوح في الخلافات القوية أو عند اجتماع عدة مشاعر.",
+     strength:"لديك لغة عاطفية عملية تساعدك على اتخاذ قرارات أهدأ والتواصل بصورة أكثر مباشرة.",
+     growth:"ركّز على أقل بُعدين في نتيجتك، خصوصًا في المواقف التي ترتفع فيها شدة الانفعال."},
+    {id:"high",min:80,max:100,label:"وضوح مرتفع",
+     summary:"تلتقط تغيراتك العاطفية مبكرًا، وتميز بين المشاعر المتقاربة، وتفهم غالبًا ما الذي أثارها وما الذي تحتاجه. تستطيع أيضًا التعبير عنها بطريقة مفهومة.",
+     strength:"تتعامل مع المشاعر كمعلومات قابلة للفهم بدل أن تراها أوامر يجب تنفيذها فورًا.",
+     growth:"حافظ على المرونة؛ وضوح الشعور لا يعني أن أول تفسير لسببه صحيح دائمًا، ولا يعني ضرورة تحليل كل تغير بسيط."}
+  ],
+  interp:{
+    noticing:{low:"قد تكتشف مشاعرك بعد أن تتحول إلى سلوك أو توتر واضح. الأولوية هنا هي ملاحظة التغير، لا تفسيره فورًا.",developing:"تنتبه إلى تغير حالتك، لكن غالبًا بعد أن تزداد شدتها أو تؤثر في تركيزك.",strong:"تلتقط تغير حالتك العاطفية مبكرًا، ما يمنحك مساحة أكبر للاختيار قبل التصرف."},
+    body_signals:{low:"قد تمر إشارات الجسد دون ربطها بالسياق العاطفي، أو قد تُفسَّر بتفسير واحد سريع.",developing:"تلاحظ التوترات الجسدية، لكن ترجمتها إلى قرائن عاطفية دقيقة ليست ثابتة بعد.",strong:"تستخدم إشارات الجسد كجزء من الصورة مع مراعاة النوم والجوع والألم والأسباب الصحية."},
+    labeling:{low:"تميل إلى وصف التجربة بكلمات عامة أو بسرد الحدث بدل تسمية الشعور نفسه.",developing:"تستطيع تسمية المشاعر الأساسية، لكن الدقة تقل عند وجود مشاعر مختلطة.",strong:"لديك مفردات عاطفية دقيقة وتستطيع وصف نوع الشعور ودرجته."},
+    differentiation:{low:"قد تبدو المشاعر المتقاربة أو المتزامنة كتجربة واحدة يصعب فصلها.",developing:"تميز الشعور الأقوى، لكن المشاعر الثانوية أو المتناقضة قد تبقى غير واضحة.",strong:"تفرق بين المشاعر المتشابهة وتتعرف إلى الطبقات المتزامنة داخل التجربة."},
+    causal_understanding:{low:"قد تربط شعورك بالحدث مباشرة دون ملاحظة دور التفسير أو التوقع أو الاحتياج.",developing:"تعرف أن وراء الشعور معنى أعمق، لكن تحديده يحتاج إلى وقت وهدوء.",strong:"تربط بين الحدث وتفسيرك له والقيمة أو الاحتياج الذي تأثر، مع استعداد لمراجعة استنتاجك."},
+    expression:{low:"قد يتحول الشعور إلى كبت أو ابتعاد أو انفجار لأن نقله بالكلمات صعب.",developing:"تعبر عن الحالة العامة، لكن تحديد الشعور والطلب المناسب ليس ثابتًا في المواقف الحساسة.",strong:"تستطيع نقل الشعور وسببه واحتياجك بصورة مباشرة ومفهومة وفي توقيت مناسب."}
+  }
+};
+
+/* ========== 2. COUPLE COPY (original, for the two-person view) ========== */
+const TALK = {
+  noticing:{
+    gap:"أحدكما يلتقط تغيّر حالته مبكرًا، والآخر يكتشفه بعد أن يظهر في التصرفات. اتفقا على إشارة قصيرة يقولها من لاحظ التغير أولًا، بدل انتظار أن يتضح الأمر من نبرة الصوت.",
+    bothLow:"كلاكما يعرف عادةً أن شيئًا تغيّر بعد أن يكبر. جرّبا سؤالًا واحدًا في نهاية اليوم: ما اللحظة التي تغيّر فيها مزاجك اليوم؟",
+    bothHigh:"كلاكما يلتقط التغير مبكرًا. الفائدة الحقيقية أن تستخدما هذه المساحة للحديث قبل الانفعال، لا لتحليل كل تغير بسيط."
+  },
+  body_signals:{
+    gap:"أحدكما يقرأ حالته من جسده والآخر لا يربط بينهما. اسألا: ما أول شيء يحدث في جسدك عندما يبدأ الضيق؟ الإجابة تختلف بينكما أكثر مما تتوقعان.",
+    bothLow:"التعب والجوع وقلة النوم تُقرأ أحيانًا كخلاف بينكما. اتفقا على مراجعة هذه الأسباب أولًا قبل تفسير المزاج.",
+    bothHigh:"كلاكما ينتبه لإشارات جسده. استخدما ذلك في التوقيت: أجّلا النقاش الصعب عندما يكون أحدكما منهكًا."
+  },
+  labeling:{
+    gap:"أحدكما يسمّي شعوره بدقة والآخر يصف الحدث أو يستخدم كلمات عامة. لا تفترضا أن قلة الكلام تعني قلة الشعور؛ اسألا عن أقرب كلمة، لا عن الكلمة الصحيحة.",
+    bothLow:"حواركما العاطفي يعتمد على كلمات عامة مثل «متضايق» أو «مرتاح». اتفقا على توسيع المفردات: كلمتان أدق في كل مرة تكفيان.",
+    bothHigh:"لديكما لغة عاطفية دقيقة. احرصا على ألا تتحول الدقة إلى نقاش في اختيار الكلمات بدل الاستماع."
+  },
+  differentiation:{
+    gap:"أحدكما يفصل بين الغضب والجرح والإحراج، والآخر يشعر بها ككتلة واحدة. عندما يبدو رد الفعل غضبًا، اسألا إن كان تحته جرح أو خوف.",
+    bothLow:"تتحول المشاعر السلبية عند كلاكما إلى شيء واحد ضاغط. جرّبا تسمية شعورين معًا في الموقف نفسه بدل شعور واحد.",
+    bothHigh:"كلاكما يرى الطبقات المتزامنة في الشعور. هذه أفضل نقطة قوة في وقت الخلاف، بشرط أن تُقال بصوت مسموع لا أن تبقى تحليلًا داخليًا."
+  },
+  causal_understanding:{
+    gap:"أحدكما يبحث عن الاحتياج وراء الشعور والآخر يتوقف عند الحدث المباشر. عند أي ضيق، اسألا سؤالًا واحدًا: ما الاحتياج الذي لم يُقل هنا؟",
+    bothLow:"تُفسَّر المواقف عند كلاكما بأول تفسير يخطر. افصلا بين ما قيل فعلًا وما فهمتماه منه قبل الرد.",
+    bothHigh:"كلاكما يربط الشعور بسببه واحتياجه. تذكّرا أن أول تفسير، حتى الذكي منه، يظل قابلًا للمراجعة."
+  },
+  expression:{
+    gap:"أحدكما يعبّر بوضوح والآخر يكتم أو يبتعد. الاختلاف هنا ليس في قوة الشعور بل في طريقة نقله: اتفقا على أن الطلب المباشر ليس ضغطًا، وأن الصمت ليس رفضًا.",
+    bothLow:"يتحول الشعور عند كلاكما إلى كبت أو ابتعاد أو انفجار. اتفقا على صيغة واحدة: أنا أشعر بـ… لأن… وأحتاج…",
+    bothHigh:"كلاكما يستطيع قول شعوره واحتياجه بوضوح. حافظا على هذا في المواقف التي يكون فيها الخطأ من أحدكما، لا في الأوقات الهادئة فقط."
+  }
+};
+const HONEST = "هذه ليست نسبة توافق ولا حكمًا على العلاقة. الاختبار يقيس مهارة يمكن تعلّمها عند كل واحد منكما على حدة، والفرق في أي مهارة يوضح أين تختلف طريقتكما في التعامل مع المشاعر، لا من الأفضل.";
+
+/* ========== 3. STATE ========== */
+const STORE_KEY = "ec-ar-v2-self";
+const CODE_PREFIX = "EC1.";
+const ORDER = TEST.questions.map(q => q.id);
+
+let session = null;   // {name, answers:{}, opts:[], i}
+let me = null;        // {name, s:"18 digits"}
+let peer = null;      // {name, s:"18 digits"}
+
+const $ = id => document.getElementById(id);
+const views = {intro:$("view-intro"), quiz:$("view-quiz"), result:$("view-result")};
+
+function show(which){
+  Object.keys(views).forEach(k => { views[k].hidden = (k !== which); });
+  window.scrollTo({top:0, behavior:"auto"});
+}
+function clear(el){ while(el.firstChild) el.removeChild(el.firstChild); }
+function el(tag, cls, text){
+  const n = document.createElement(tag);
+  if(cls) n.className = cls;
+  if(text !== undefined) n.textContent = text;
+  return n;
+}
+
+/* ========== 4. CODEC ========== */
+function toB64url(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  bytes.forEach(b => { bin += String.fromCharCode(b); });
+  return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function fromB64url(s){
+  let t = s.replace(/-/g,"+").replace(/_/g,"/");
+  while(t.length % 4) t += "=";
+  const bin = atob(t);
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+function cleanName(v){
+  return String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f]/g,"").replace(/\s+/g," ").trim().slice(0,24);
+}
+function encodeRecord(rec){
+  return CODE_PREFIX + toB64url(JSON.stringify({v:1, n:rec.name, s:rec.s}));
+}
+/* returns {ok:true, rec} or {ok:false, why} — never throws */
+function decodeRecord(raw){
+  const text = String(raw == null ? "" : raw);
+  const m = text.match(/EC1\.([A-Za-z0-9\-_]{8,})/);
+  if(!m) return {ok:false, why:"لم أجد كودًا صحيحًا. الكود يبدأ بـ EC1. — انسخه كاملًا والصقه هنا."};
+  let obj;
+  try { obj = JSON.parse(fromB64url(m[1])); }
+  catch(e){ return {ok:false, why:"الكود غير مكتمل أو تغيّر أثناء النسخ. اطلب من شريكك إرساله مرة أخرى كاملًا."}; }
+  if(!obj || obj.v !== 1 || typeof obj.s !== "string" || !/^[0-2]{18}$/.test(obj.s)){
+    return {ok:false, why:"الكود لا يحتوي على ١٨ إجابة صحيحة. اطلب من شريكك إرساله مرة أخرى."};
+  }
+  return {ok:true, rec:{name:cleanName(obj.n), s:obj.s}};
+}
+
+/* ========== 5. SCORING ========== */
+function scoreOf(rec){
+  const per = {};
+  ORDER.forEach((id,i) => { per[id] = Number(rec.s[i]); });
+  const dims = TEST.dimensions.map((d,idx) => {
+    const raw = d.itemIds.reduce((sum,id) => sum + per[id], 0);
+    return {id:d.id, name:d.name, short:d.short, order:idx, raw:raw, pct:Math.round(100*raw/6)};
+  });
+  const totalRaw = dims.reduce((s,d) => s + d.raw, 0);
+  const overall = Math.round(100*totalRaw/36);
+  const band = TEST.bands.find(b => overall >= b.min && overall <= b.max);
+  return {dims, totalRaw, overall, band};
+}
+function level(pct){
+  if(pct <= 39) return "low";
+  if(pct <= 69) return "developing";
+  return "strong";
+}
+
+/* ========== 6. INTRO ========== */
+function renderIntro(){
+  const ol = $("intro-steps");
+  clear(ol);
+  TEST.instructions.forEach(t => ol.appendChild(el("li", null, t)));
+  $("intro-disclaimer").textContent = TEST.disclaimer;
+
+  const saved = loadSelf();
+  $("btn-resume").hidden = !saved;
+  if(saved) $("name-input").value = saved.name;
+  syncStartBtn();
+}
+function syncStartBtn(){
+  $("btn-start").disabled = cleanName($("name-input").value).length === 0;
+}
+function loadSelf(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return null;
+    const r = decodeRecord(raw);
+    return r.ok ? r.rec : null;
+  }catch(e){ return null; }
+}
+function saveSelf(rec){
+  try{ localStorage.setItem(STORE_KEY, encodeRecord(rec)); }catch(e){ /* storage may be blocked; not required */ }
+}
+
+/* ========== 7. QUIZ ========== */
+function shuffled(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function startQuiz(){
+  session = {
+    name: cleanName($("name-input").value),
+    answers: {},
+    opts: TEST.questions.map(q => shuffled(q.options)),
+    i: 0
+  };
+  show("quiz");
+  renderQuestion();
+}
+function renderQuestion(){
+  const q = TEST.questions[session.i];
+  const answered = Object.keys(session.answers).length;
+
+  const ticks = $("ticks");
+  clear(ticks);
+  TEST.questions.forEach((qq,idx) => {
+    const t = el("span");
+    if(session.answers[qq.id] !== undefined) t.classList.add("done");
+    if(idx === session.i) t.classList.add("now");
+    ticks.appendChild(t);
+  });
+  $("q-pos").textContent = "سؤال " + (session.i+1) + " من 18";
+  $("q-left").textContent = answered === 18 ? "اكتملت الإجابات" : "أجبت على " + answered;
+
+  const card = $("q-card");
+  card.classList.remove("fade");
+  void card.offsetWidth;
+  card.classList.add("fade");
+
+  $("q-prompt").textContent = q.prompt;
+
+  const box = $("q-opts");
+  clear(box);
+  const chosen = session.answers[q.id];
+  session.opts[session.i].forEach(opt => {
+    const b = el("button", "opt");
+    b.type = "button";
+    b.setAttribute("role","radio");
+    b.setAttribute("aria-checked", chosen === opt.s ? "true" : "false");
+    b.appendChild(el("span","mark"));
+    b.appendChild(el("span","txt", opt.t));
+    b.addEventListener("click", () => {
+      session.answers[q.id] = opt.s;
+      renderQuestion();
+    });
+    box.appendChild(b);
+  });
+
+  const last = session.i === TEST.questions.length - 1;
+  $("btn-next").textContent = last ? "اعرض نتيجتي" : "التالي";
+  $("btn-next").disabled = session.answers[q.id] === undefined;
+  $("btn-back").style.visibility = session.i === 0 ? "hidden" : "visible";
+}
+function goNext(){
+  if(session.answers[TEST.questions[session.i].id] === undefined) return;
+  if(session.i < TEST.questions.length - 1){
+    session.i++;
+    renderQuestion();
+  } else {
+    finish();
+  }
+}
+function goBack(){
+  if(session.i > 0){ session.i--; renderQuestion(); }
+}
+function finish(){
+  const missing = ORDER.filter(id => session.answers[id] === undefined);
+  if(missing.length){
+    session.i = TEST.questions.findIndex(q => q.id === missing[0]);
+    renderQuestion();
+    return;
+  }
+  me = {name: session.name, s: ORDER.map(id => session.answers[id]).join("")};
+  saveSelf(me);
+  renderResult();
+}
+
+/* ========== 8. RADAR ========== */
+function radar(svg, series){
+  const ns = "http://www.w3.org/2000/svg";
+  const labelId = svg.getAttribute("aria-labelledby");
+  clear(svg);
+  const title = document.createElementNS(ns, "title");
+  if(labelId) title.setAttribute("id", labelId);
+  title.textContent = series.length > 1 ? "خريطة المهارات للاثنين" : "خريطة المهارات الست";
+  svg.appendChild(title);
+
+  const W = 440, cx = W/2, cy = 186, maxR = 104, labelR = 132;
+  const n = TEST.dimensions.length;
+  const step = (2*Math.PI)/n;
+  const start = -Math.PI/2;
+  /* counter-clockwise so the axes progress right-to-left, matching Arabic reading order */
+  const at = (i,r) => [cx + r*Math.cos(start - i*step), cy + r*Math.sin(start - i*step)];
+  const mk = (tag,attrs) => {
+    const e = document.createElementNS(ns,tag);
+    Object.keys(attrs).forEach(k => e.setAttribute(k, attrs[k]));
+    return e;
+  };
+  const ringColor = getComputedStyle(document.documentElement).getPropertyValue("--line").trim() || "#d1dbd8";
+  const textColor = getComputedStyle(document.documentElement).getPropertyValue("--muted").trim() || "#5a6a66";
+
+  [0.25,0.5,0.75,1].forEach(f => {
+    const pts = [];
+    for(let i=0;i<n;i++) pts.push(at(i, maxR*f).join(","));
+    svg.appendChild(mk("polygon",{points:pts.join(" "),fill:"none",stroke:ringColor,"stroke-width":f===1?1.2:0.8}));
+  });
+  for(let i=0;i<n;i++){
+    const p = at(i, maxR);
+    svg.appendChild(mk("line",{x1:cx,y1:cy,x2:p[0],y2:p[1],stroke:ringColor,"stroke-width":0.8}));
+  }
+
+  series.forEach(s => {
+    const pts = [];
+    for(let i=0;i<n;i++) pts.push(at(i, (s.dims[i].pct/100)*maxR).join(","));
+    svg.appendChild(mk("polygon",{
+      points:pts.join(" "),
+      fill:s.fill ? s.color : "none",
+      "fill-opacity":s.fill ? 0.18 : 0,
+      stroke:s.color,
+      "stroke-width":2,
+      "stroke-dasharray":s.dash || "none",
+      "stroke-linejoin":"round"
+    }));
+    for(let i=0;i<n;i++){
+      const p = at(i, (s.dims[i].pct/100)*maxR);
+      if(s.square){
+        svg.appendChild(mk("rect",{x:p[0]-3.4,y:p[1]-3.4,width:6.8,height:6.8,fill:s.color}));
+      } else {
+        svg.appendChild(mk("circle",{cx:p[0],cy:p[1],r:3.6,fill:s.color}));
+      }
+    }
+  });
+
+  for(let i=0;i<n;i++){
+    const p = at(i, labelR);
+    const solo = series.length === 1;
+    const t = mk("text",{x:p[0],y:p[1] + (solo ? -4 : 4),"text-anchor":"middle","font-size":"12.5",fill:textColor,direction:"rtl"});
+    t.textContent = TEST.dimensions[i].short;
+    svg.appendChild(t);
+    if(solo){
+      const v = mk("text",{x:p[0],y:p[1]+14,"text-anchor":"middle","font-size":"12",fill:series[0].color,"font-weight":"600"});
+      v.textContent = series[0].dims[i].pct + "٪";
+      svg.appendChild(v);
+    }
+  }
+}
+function legendInto(box, items){
+  clear(box);
+  items.forEach(it => {
+    const s = el("span");
+    const b = el("b");
+    b.style.borderTopColor = it.color;
+    b.style.borderTopStyle = it.dash ? "dashed" : "solid";
+    s.appendChild(b);
+    s.appendChild(document.createTextNode(it.label));
+    box.appendChild(s);
+  });
+  box.hidden = false;
+}
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+/* ========== 9. RESULT ========== */
+function plainRow(title, text, hollow){
+  const row = el("div","row");
+  row.appendChild(el("span","dot" + (hollow ? " hollow" : "")));
+  const body = el("div","body");
+  body.appendChild(el("strong", null, title));
+  body.appendChild(el("small", null, text));
+  row.appendChild(body);
+  return row;
+}
+function dimRow(d, hollow){
+  const row = el("div","row");
+  row.appendChild(el("span","dot" + (hollow ? " hollow" : "")));
+  const body = el("div","body");
+  body.appendChild(el("strong", null, d.name));
+  body.appendChild(el("small", null, TEST.interp[d.id][level(d.pct)]));
+  row.appendChild(body);
+  const v = el("span","val", d.pct + "٪");
+  if(hollow) v.style.color = "var(--muted)";
+  row.appendChild(v);
+  return row;
+}
+function renderResult(){
+  const r = scoreOf(me);
+
+  $("r-owner").textContent = "تقرير " + me.name;
+  $("r-pct").textContent = r.overall + "٪";
+  $("r-band").textContent = r.band.label;
+  $("r-summary").textContent = r.band.summary;
+
+  radar($("r-chart"), [{dims:r.dims, color:cssVar("--you") || "#0e5f55", fill:true}]);
+  $("r-legend").hidden = true;
+
+  const byHigh = r.dims.slice().sort((a,b) => b.pct - a.pct || a.order - b.order);
+  const byLow  = r.dims.slice().sort((a,b) => a.pct - b.pct || a.order - b.order);
+
+  /* a spread under 17 points is inside the instrument's own noise floor (three items per skill),
+     so naming a highest or lowest skill would be false precision — say so instead. */
+  const spread = byHigh[0].pct - byLow[0].pct;
+  const flat = spread < 17;
+
+  const sBox = $("r-strengths");
+  clear(sBox);
+  $("r-strengths-h").textContent = flat ? "شكل نتيجتك" : "أوضح جوانبك";
+  const top2 = byHigh.slice(0,2);
+  if(flat){
+    sBox.appendChild(plainRow(
+      "مستوى واحد متقارب في المهارات الست",
+      "كل المهارات عندك بين " + byLow[0].pct + "٪ و" + byHigh[0].pct + "٪، والفرق بينها أصغر من ١٧ نقطة. لا يوجد جانب أقوى أو أضعف بصورة واضحة، فاقرأ النتيجة كمستوى عام واحد لا كترتيب بين المهارات."
+    ));
+    $("r-strength-note").textContent = r.band.strength;
+  } else {
+    top2.forEach(d => sBox.appendChild(dimRow(d, false)));
+    $("r-strength-note").textContent = (Math.abs(top2[0].pct - top2[1].pct) < 17)
+      ? "الفرق بين هذين الجانبين أصغر من ١٧ نقطة، فاقرأهما كقوتين متقاربتين لا كترتيب حاسم. " + r.band.strength
+      : r.band.strength;
+  }
+
+  const gCard = $("r-growth-card"), gBox = $("r-growth");
+  clear(gBox);
+  const eligible = byLow.filter(d => d.pct < 70);
+  if(eligible.length === 0){
+    gCard.hidden = true;
+  } else {
+    gCard.hidden = false;
+    if(flat){
+      gBox.appendChild(plainRow(
+        "لا يوجد جانب متأخر بوضوح",
+        "الفرق بين المهارات أصغر من أن يحدد أولوية واحدة. اتبع التوجيه العام أدناه، واختر مهارة واحدة تبدأ بها لمدة أسبوع.",
+        true
+      ));
+      $("r-growth-note").textContent = r.band.growth;
+    } else {
+      /* never list a skill as a priority when it is already shown as a strength */
+      const shown = {};
+      top2.forEach(d => { shown[d.id] = true; });
+      let growth = eligible.filter(d => !shown[d.id]).slice(0,2);
+      if(growth.length === 0) growth = eligible.slice(0,2);
+      growth.forEach(d => gBox.appendChild(dimRow(d, true)));
+      let note = r.band.growth;
+      if(growth.length === 2 && Math.abs(growth[0].pct - growth[1].pct) < 17){
+        note = "الفرق بين هذين الجانبين أصغر من ١٧ نقطة، فتعامل معهما كأولويتين متقاربتين. " + note;
+      }
+      $("r-growth-note").textContent = note;
+    }
+  }
+
+  const all = $("r-all");
+  clear(all);
+  r.dims.forEach(d => all.appendChild(dimRow(d, d.pct < 40)));
+
+  $("my-code").textContent = encodeRecord(me);
+  $("copy-said").textContent = "";
+  $("pair-said").textContent = "";
+  $("r-disclaimer").textContent = TEST.disclaimer;
+
+  if(peer) renderCompare(); else $("cmp").hidden = true;
+  show("result");
+}
+
+/* ========== 10. COMPARISON ========== */
+function renderCompare(){
+  const A = scoreOf(me), B = scoreOf(peer);
+  const nameA = me.name, nameB = peer.name || "شريكك";
+  const you = cssVar("--you") || "#0e5f55";
+  const oth = cssVar("--partner") || "#8f6210";
+
+  $("cmp-title").textContent = nameA + " و" + nameB;
+  $("cmp-honest").textContent = HONEST;
+
+  radar($("cmp-chart"), [
+    {dims:A.dims, color:you, fill:true},
+    {dims:B.dims, color:oth, fill:false, dash:"5 4", square:true}
+  ]);
+  legendInto($("cmp-legend"), [
+    {label:nameA + " — " + A.overall + "٪ (" + A.band.label + ")", color:you},
+    {label:nameB + " — " + B.overall + "٪ (" + B.band.label + ")", color:oth, dash:true}
+  ]);
+
+  /* dumbbell rows, largest gap first */
+  const pairs = TEST.dimensions.map((d,i) => ({
+    id:d.id, name:d.name, order:i,
+    a:A.dims[i].pct, b:B.dims[i].pct,
+    gap:Math.abs(A.dims[i].pct - B.dims[i].pct),
+    avg:(A.dims[i].pct + B.dims[i].pct)/2
+  })).sort((x,y) => y.gap - x.gap || x.order - y.order);
+
+  const rows = $("cmp-rows");
+  clear(rows);
+  pairs.forEach(p => {
+    const wrap = el("div","pair");
+    const head = el("div","head");
+    head.appendChild(el("strong", null, p.name));
+    head.appendChild(el("span","gap", p.gap === 0 ? "لا فرق" : (p.gap < 17 ? "فرق ضئيل (" + p.gap + "٪)" : "فرق " + p.gap + "٪")));
+    wrap.appendChild(head);
+
+    const track = el("div","track");
+    const lo = Math.min(p.a,p.b), hi = Math.max(p.a,p.b);
+    const span = el("span","span");
+    span.style.insetInlineStart = lo + "%";
+    span.style.width = (hi - lo) + "%";
+    track.appendChild(span);
+
+    [{v:p.a,cls:"a",nm:nameA},{v:p.b,cls:"b",nm:nameB}].forEach(pt => {
+      const pin = el("span","pin " + pt.cls);
+      pin.style.insetInlineStart = pt.v + "%";
+      pin.title = pt.nm + ": " + pt.v + "٪";
+      track.appendChild(pin);
+    });
+    wrap.appendChild(track);
+
+    const legend = el("div","gap");
+    legend.style.color = "var(--muted)";
+    legend.style.fontSize = ".8rem";
+    legend.textContent = nameA + " " + p.a + "٪ · " + nameB + " " + p.b + "٪";
+    wrap.appendChild(legend);
+    rows.appendChild(wrap);
+  });
+
+  /* three talking points: biggest real gap, weakest shared, strongest shared */
+  const talk = $("cmp-talk");
+  clear(talk);
+  const used = {};
+  const card = (tag, name, text) => {
+    const a = el("article");
+    a.appendChild(el("span","tag", tag));
+    a.appendChild(el("h3", null, name));
+    a.appendChild(el("p", null, text));
+    talk.appendChild(a);
+  };
+
+  const widest = pairs[0];
+  if(widest.gap >= 34){
+    used[widest.id] = true;
+    card("أكبر اختلاف بينكما", widest.name, TALK[widest.id].gap);
+  } else if(widest.gap >= 17){
+    used[widest.id] = true;
+    card("أوضح اختلاف، وهو محدود", widest.name, TALK[widest.id].gap);
+  } else {
+    card("لا يوجد اختلاف واضح", "المهارات الست", "الفروق بينكما في كل المهارات أقل من ١٧ نقطة، أي أنكما تتعاملان مع المشاعر بطريقة متقاربة. اقرآ الجانبين التاليين معًا بوصفهما مسؤولية مشتركة لا فرقًا بينكما.");
+  }
+
+  const byAvg = pairs.slice().sort((x,y) => x.avg - y.avg || x.order - y.order);
+  const avgSpread = byAvg[byAvg.length-1].avg - byAvg[0].avg;
+  if(avgSpread < 17){
+    /* the two of you sit at one level across all six — naming a weakest or strongest would be noise */
+    const mean = byAvg.reduce((s,p) => s + p.avg, 0) / byAvg.length;
+    card("مستوى مشترك في المهارات الست", "المهارات الست معًا",
+      mean < 60
+        ? "مستواكما متقارب في المهارات الست، وأغلبها يحتاج تدريبًا من الاثنين لا من واحد فقط. ابدآ بمهارة واحدة لمدة أسبوع بدل محاولة تغيير كل شيء معًا."
+        : "مستواكما متقارب ومرتفع نسبيًا في المهارات الست. الاختلاف بينكما ليس في المهارة نفسها بل في المواقف التي تُختبر فيها، فتحدثا عن المواقف لا عن الدرجات.");
+  } else {
+    const weakest = byAvg.find(p => !used[p.id]);
+    if(weakest && weakest.avg < 70){
+      used[weakest.id] = true;
+      card("أضعف جانب عند الاثنين", weakest.name, TALK[weakest.id].bothLow);
+    }
+    const strongest = byAvg.slice().reverse().find(p => !used[p.id]);
+    if(strongest && strongest.avg >= 50){
+      card("أقوى جانب مشترك", strongest.name, TALK[strongest.id].bothHigh);
+    }
+  }
+
+  $("cmp").hidden = false;
+}
+
+/* ========== 11. EVENTS ========== */
+$("name-input").addEventListener("input", syncStartBtn);
+$("name-input").addEventListener("keydown", e => {
+  if(e.key === "Enter" && !$("btn-start").disabled) startQuiz();
+});
+$("btn-start").addEventListener("click", startQuiz);
+$("btn-resume").addEventListener("click", () => {
+  const saved = loadSelf();
+  if(!saved) return;
+  me = saved;
+  renderResult();
+});
+$("btn-next").addEventListener("click", goNext);
+$("btn-back").addEventListener("click", goBack);
+$("btn-restart").addEventListener("click", () => {
+  session = null;
+  show("intro");
+  renderIntro();
+});
+
+document.addEventListener("keydown", e => {
+  if(views.quiz.hidden) return;
+  if(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+  const map = {"1":0,"2":1,"3":2,"١":0,"٢":1,"٣":2};
+  if(Object.prototype.hasOwnProperty.call(map, e.key)){
+    const opts = $("q-opts").children;
+    const pick = opts[map[e.key]];
+    if(pick){ pick.click(); e.preventDefault(); }
+  } else if(e.key === "Enter"){
+    if(!$("btn-next").disabled){ goNext(); e.preventDefault(); }
+  } else if(e.key === "Backspace"){
+    goBack(); e.preventDefault();
+  }
+});
+
+$("btn-copy").addEventListener("click", () => {
+  const code = $("my-code").textContent;
+  const said = $("copy-said");
+  said.classList.remove("bad");
+  const fallback = () => {
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents($("my-code"));
+    sel.removeAllRanges();
+    sel.addRange(range);
+    let ok = false;
+    try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
+    said.textContent = ok ? "تم نسخ الكود." : "لم ينجح النسخ التلقائي. الكود محدد الآن — انسخه يدويًا.";
+    if(!ok) said.classList.add("bad");
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(code).then(
+      () => { said.textContent = "تم نسخ الكود. ابعته لشريكك مع رابط الصفحة."; },
+      fallback
+    );
+  } else fallback();
+});
+
+$("btn-pair").addEventListener("click", () => {
+  const said = $("pair-said");
+  const out = decodeRecord($("peer-code").value);
+  if(!out.ok){
+    said.classList.add("bad");
+    said.textContent = out.why;
+    return;
+  }
+  if(me && out.rec.s === me.s && out.rec.name === me.name){
+    said.classList.add("bad");
+    said.textContent = "هذا كودك أنت. الصق الكود الذي أرسله لك شريكك.";
+    return;
+  }
+  said.classList.remove("bad");
+  peer = out.rec;
+  said.textContent = "تمت قراءة كود " + (peer.name || "شريكك") + ".";
+  renderCompare();
+  $("cmp").scrollIntoView({behavior:"smooth", block:"start"});
+});
+
+/* optional: a code passed in the address bar is read automatically when the viewer exposes it */
+(function bootstrap(){
+  try{
+    const raw = (window.location.hash || "") + " " + (window.location.search || "");
+    const found = decodeRecord(decodeURIComponent(raw));
+    if(found.ok) peer = found.rec;
+  }catch(e){ /* no code in the URL; the paste field is the primary path */ }
+  renderIntro();
+  if(peer){
+    const n = peer.name || "شريكك";
+    $("intro-steps").parentNode.insertBefore(
+      el("div","note", n + " أجاب بالفعل. أجب أنت على الأسئلة، وستظهر المقارنة بينكما في نهاية الاختبار."),
+      $("intro-disclaimer")
+    );
+  }
+  show("intro");
+})();
+</script>
+
+</body>
+</html>
