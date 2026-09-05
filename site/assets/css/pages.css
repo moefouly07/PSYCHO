@@ -1056,6 +1056,65 @@ body.is-quick-exiting .quick-exit-overlay { visibility: visible; }
   min-height: 44px;
 }
 
+/* ------------------------------------------------- ملاحظات ومشاركة الجلسة */
+
+.free-note {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.note-toggle {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+}
+
+.note-toggle summary {
+  cursor: pointer;
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.note-toggle[open] summary {
+  margin-block-end: var(--space-3);
+}
+
+.session-answer {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+}
+
+.share-code-box {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 2px dashed var(--color-primary-tint);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+}
+
+.partner-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.partner-compare > div {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+@media (max-width: 560px) {
+  .partner-compare { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------------------ إتاحة عامة */
+
 @media (prefers-reduced-motion: reduce) {
   .view-enter { animation: none !important; }
   * { transition-duration: .001ms !important; }

@@ -1108,12 +1108,30 @@ function paintQuestion() {
   });
   quizState.nextButton = next;
 
+  if (!progress.notes) progress.notes = {};
+  const noteValue = progress.notes[question.id] || "";
+  const noteArea = element("textarea", {
+    class: "textarea free-note",
+    placeholder: "اكتب ملاحظتك هنا… (اختياري ولا تؤثر على النتيجة)",
+    "aria-label": "ملاحظة حرة",
+    rows: "3"
+  });
+  noteArea.value = noteValue;
+  noteArea.addEventListener("input", () => {
+    progress.notes[question.id] = noteArea.value;
+    storage.setProgress(test, progress);
+  });
+
   elements.questionCard.setAttribute("tabindex", "-1");
   elements.questionCard.append(
     element("div", { class: "stack" }, [
       element("p", { class: "question-number", text: categoryFor(test).name }),
       element("h1", { class: "question-prompt", id: promptId, text: question.prompt }),
-      options
+      options,
+      element("details", { class: "note-toggle" }, [
+        element("summary", { text: noteValue ? "ملاحظتك ✏️" : "أضف ملاحظة حرة (اختياري)" }),
+        noteArea
+      ])
     ]),
     element("div", { class: "quiz-nav" }, [previous, next])
   );
