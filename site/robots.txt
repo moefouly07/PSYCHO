@@ -2,4 +2,3 @@
 # A sitemap is intentionally absent: no canonical production domain is configured.
 User-agent: *
 Allow: /
-Disallow: /_archive/

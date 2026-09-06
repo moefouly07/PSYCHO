@@ -199,22 +199,28 @@ function heroVisual() {
   return element("div", { class: "hero-visual" }, [svg]);
 }
 
-const HOME_CARDS = [
+const HOME_PRIMARY_CARDS = [
   {
+    tone: "primary",
+    title: "الاختبارات النفسية",
+    text: "عشرون تقييمًا سلوكيًا يجيب عنها كل طرف بمفرده، ثم تُقارن النسب دون كشف الإجابات.",
+    cta: "شاهدا الاختبارات النفسية",
+    route: "#/assessments",
+    paths: ["M5 20V10", "M12 20V4", "M19 20v-6"]
+  },
+  {
+    tone: "accent",
     title: "الرحلة قبل الزواج",
     text: "مسار منظم لأهم الموضوعات والقرارات التي تستحق النقاش قبل الزواج.",
     cta: "ابدآ الرحلة",
     route: "#/premarital",
     paths: ["M4 6h16", "M4 12h16", "M4 18h10"]
-  },
+  }
+];
+
+const HOME_SECONDARY_CARDS = [
   {
-    title: "التقييمات",
-    text: "تقييمات استكشافية تساعد كل طرف على فهم عاداته واحتياجاته داخل العلاقة.",
-    cta: "شاهدا التقييمات",
-    route: "#/assessments",
-    paths: ["M5 20V10", "M12 20V4", "M19 20v-6"]
-  },
-  {
+    tone: "positive",
     title: "أسئلة بيننا",
     text: "أسئلة مصنفة تبدأ بخفة وتتدرج إلى حوارات أعمق عن الحياة والمستقبل.",
     cta: "اختارا سؤالًا",
@@ -222,6 +228,7 @@ const HOME_CARDS = [
     paths: ["M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"]
   },
   {
+    tone: "warning",
     title: "قد إيه تعرفني؟",
     text: "تجربة لطيفة لاكتشاف ما تعرفه عن تفضيلات شريكك واحتياجاته وطموحاته.",
     cta: "ابدآ التحدي",
@@ -229,6 +236,18 @@ const HOME_CARDS = [
     paths: ["M12 17h.01", "M9.1 9a3 3 0 1 1 4.2 3.4c-.8.4-1.3 1.2-1.3 2.1"]
   }
 ];
+
+function homeCard(card) {
+  return element("a", { class: `home-card home-card--${card.tone}`, href: card.route }, [
+    element("span", { class: "home-card-icon" }, [icon(card.paths)]),
+    element("h3", { text: card.title }),
+    element("p", { text: card.text }),
+    element("span", { class: "home-card-cta" }, [
+      element("span", { text: card.cta }),
+      element("span", { "aria-hidden": "true", text: "←" })
+    ])
+  ]);
+}
 
 const HOME_TOPICS = [
   { label: "التواصل", category: "communication" },
@@ -253,8 +272,8 @@ function renderHome() {
           element("h1", { text: "افهموا بعض قبل ما تبدأوا حياتكم سوا" }),
           element("p", { class: "lede", text: "مساحة خاصة تساعدكما على فهم طريقة التواصل، ومناقشة القرارات المهمة، واكتشاف ما اتفقتما عليه وما يحتاج إلى حوار — من دون أحكام أو تشخيصات." }),
           element("div", { class: "hero-actions" }, [
-            element("a", { class: "button button--primary", href: "#/premarital", text: "ابدآ الرحلة قبل الزواج" }),
-            element("a", { class: "button button--secondary", href: "#/questions", text: "استكشفا أسئلة بيننا" })
+            element("a", { class: "button button--primary", href: "#/assessments", text: "شاهدا الاختبارات النفسية" }),
+            element("a", { class: "button button--secondary", href: "#/premarital", text: "ابدآ الرحلة قبل الزواج" })
           ]),
           element("ul", { class: "hero-trust" }, [
             "بياناتكما تظل على الجهاز",
@@ -267,21 +286,19 @@ function renderHome() {
     ])
   ]));
 
-  /* ------------------------------------------- FOUR EXPERIENCE CARDS */
+  /* ------------------------------------------------ TWO MAIN SECTIONS */
   root.append(element("section", { class: "page-section" }, [
     element("div", { class: "container" }, [
-      sectionHeading("أربع تجارب مختلفة", "اختارا من أين تبدآن", "كل تجربة مستقلة، ويمكن البدء بأي منها."),
-      element("div", { class: "home-cards" }, HOME_CARDS.map((card) =>
-        element("a", { class: "home-card", href: card.route }, [
-          element("span", { class: "home-card-icon" }, [icon(card.paths)]),
-          element("h3", { text: card.title }),
-          element("p", { text: card.text }),
-          element("span", { class: "home-card-cta" }, [
-            element("span", { text: card.cta }),
-            element("span", { "aria-hidden": "true", text: "←" })
-          ])
-        ])
-      ))
+      sectionHeading("جوهر بيننا", "اختارا من أين تبدآن", "الاختبارات النفسية ورحلة ما قبل الزواج مستقلتان، ويمكن البدء بأي منهما."),
+      element("div", { class: "home-cards home-cards--primary" }, HOME_PRIMARY_CARDS.map(homeCard))
+    ])
+  ]));
+
+  /* --------------------------------------------------- EXTRA TOOLS */
+  root.append(element("section", { class: "page-section" }, [
+    element("div", { class: "container" }, [
+      sectionHeading("أدوات إضافية", "لحوار أخف وأقرب", "أضيفت لاحقًا بجانب الاختبارات والرحلة، وكل واحدة منها اختيارية."),
+      element("div", { class: "home-cards home-cards--secondary" }, HOME_SECONDARY_CARDS.map(homeCard))
     ])
   ]));
 

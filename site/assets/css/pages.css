@@ -101,7 +101,7 @@
   pointer-events: none;
 }
 
-/* ------------------------------------------------ بطاقات التجارب الأربع */
+/* ------------------------------------------------ بطاقات القسمين الرئيسيين وأدوات إضافية */
 
 .page-section:has(.home-cards) {
   background: var(--color-elevated);
@@ -109,7 +109,7 @@
 
 .home-cards {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-5);
 }
 
@@ -127,10 +127,28 @@
   transition: transform var(--motion-base) ease, box-shadow var(--motion-base) ease;
 }
 
-.home-card:nth-child(1) { border-inline-start-color: var(--color-primary); }
-.home-card:nth-child(2) { border-inline-start-color: var(--color-accent); }
-.home-card:nth-child(3) { border-inline-start-color: var(--color-positive); }
-.home-card:nth-child(4) { border-inline-start-color: var(--color-warning); }
+.home-card--primary { border-inline-start-color: var(--color-primary); }
+.home-card--accent { border-inline-start-color: var(--color-accent); }
+.home-card--positive { border-inline-start-color: var(--color-positive); }
+.home-card--warning { border-inline-start-color: var(--color-warning); }
+
+.home-cards--primary .home-card {
+  padding: clamp(28px, 3.2vw, 40px);
+}
+
+.home-cards--primary .home-card h3 {
+  font-size: var(--text-xl);
+}
+
+.home-cards--secondary .home-card {
+  padding: clamp(18px, 2vw, 24px);
+  box-shadow: var(--shadow-soft);
+}
+
+.home-cards--secondary .home-card-icon {
+  width: 40px;
+  height: 40px;
+}
 
 .home-card:hover {
   border-color: var(--color-primary);
@@ -147,10 +165,10 @@
   color: var(--color-on-primary);
 }
 
-.home-card:nth-child(1) .home-card-icon { background: var(--color-primary); }
-.home-card:nth-child(2) .home-card-icon { background: var(--color-accent); }
-.home-card:nth-child(3) .home-card-icon { background: var(--color-positive); }
-.home-card:nth-child(4) .home-card-icon { background: linear-gradient(135deg, var(--color-warning), #c06a1a); }
+.home-card--primary .home-card-icon { background: var(--color-primary); }
+.home-card--accent .home-card-icon { background: var(--color-accent); }
+.home-card--positive .home-card-icon { background: var(--color-positive); }
+.home-card--warning .home-card-icon { background: linear-gradient(135deg, var(--color-warning), #c06a1a); }
 
 .home-card-icon svg {
   width: 24px;
@@ -324,10 +342,6 @@
 }
 
 /* ------------------------------------------------------------ استجابة */
-
-@media (max-width: 1000px) {
-  .home-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
 
 @media (max-width: 860px) {
   .hero-grid { grid-template-columns: 1fr; }

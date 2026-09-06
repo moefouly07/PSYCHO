@@ -20,10 +20,12 @@ git log --all --oneline    → one commit: 6ed72ed "Initial commit: بيننا..
 git reflog                 → same single commit, nothing dangling
 ```
 
-Because there is no deeper history, the archive at
-`_archive/pre-baynana-rebuild-2026-08-01/` is the only independent copy of
+Because there is no deeper history, the archive that then existed at
+`_archive/pre-baynana-rebuild-2026-08-01/` was the only independent copy of
 the pre-rebuild state, and it was compared line-by-line against the live
-`data/tests.js`.
+`data/tests.js`. That archive (and the standalone `_archive/emotional-clarity-v2.html`
+draft) has since been removed as part of a 2026-09-05 cleanup, once this audit
+had already confirmed nothing in it was needed for recovery.
 
 ## 2. Finding: the legacy 17 are present, unchanged, and validated
 
