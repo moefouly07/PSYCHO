@@ -414,7 +414,12 @@ export function installDom({ hash = "#/" } = {}) {
   globalThis.window = window;
   globalThis.document = document;
   globalThis.location = window.location;
-  globalThis.navigator = { clipboard: { writeText: async () => {} } };
+  // Node 22 exposes navigator through a getter; replace the test global explicitly.
+  Object.defineProperty(globalThis, "navigator", {
+    configurable: true,
+    writable: true,
+    value: { clipboard: { writeText: async () => {} } }
+  });
 
   globalThis.Node = Node;
   globalThis.Blob = class {};

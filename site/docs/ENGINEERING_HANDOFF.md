@@ -125,3 +125,8 @@ files), `npm test` (all six validators, core scoring/pairing, 49 engine checks,
 `index.html`, `robots.txt`, and `vercel.json`; local screenshots and browser
 artifacts remain ignored. The manual and specialist release gates above remain
 open.
+
+The first GitHub Actions run exposed a test-harness incompatibility with Node
+22's getter-only global `navigator`. The DOM shim now installs its mock with
+`Object.defineProperty`; a local getter-only reproduction failed before this
+change and passed after it. This change affects test tooling only.
