@@ -1,5 +1,18 @@
+import { scoreAssessment } from "./scoring.js";
+import { evaluateSafety } from "./safety.js";
+import { cleanNickname, checksum, decodePairingCode } from "./pairing.js";
+import { decodeAlignmentCode } from "./alignment.js";
+
 const config = window.BAYNANA_CONFIG || {};
 const namespace = config.storageNamespace || "baynana:v1";
+const transient = new Map();
+const sessionFallback = new Map();
+let privateOverride;
+
+export function assessmentSchema(test) {
+  return checksum(JSON.stringify([test.dimensions.map(d => [d.id, d.polarity]),
+    test.questions.map(q => [q.id, q.dim, q.prompt, q.options]) ]));
+}
 
 const key = {
   theme: `${namespace}:theme`,
@@ -58,6 +71,7 @@ function writeRaw(storageKey, value) {
 }
 
 function remove(storageKey) {
+  transient.delete(storageKey);
   try {
     window.localStorage.removeItem(storageKey);
   } catch {
@@ -66,6 +80,8 @@ function remove(storageKey) {
 }
 
 function readJSON(storageKey) {
+  if (transient.has(storageKey)) return JSON.parse(transient.get(storageKey));
+  if (privateModeEnabled()) return null;
   const value = readRaw(storageKey);
   if (!value) return null;
   try {
@@ -89,19 +105,27 @@ function writeJSON(storageKey, value) {
  * Session-only state still works, because that is what private mode is for.
  */
 function privateModeEnabled() {
-  return readRaw(key.privateMode) === "on";
+  return privateOverride ?? (readRaw(key.privateMode) === "on");
 }
 
 function writePersistentJSON(storageKey, value) {
-  if (privateModeEnabled()) return false;
-  return writeJSON(storageKey, value);
+  const serialized = JSON.stringify(value);
+  if (!privateModeEnabled() && writeJSON(storageKey, value)) {
+    transient.delete(storageKey);
+    return true;
+  }
+  // Private mode and denied/quota-limited storage remain usable until reload.
+  transient.set(storageKey, serialized);
+  return false;
 }
 
 function readSession(storageKey) {
+  if (sessionFallback.has(storageKey)) return JSON.parse(sessionFallback.get(storageKey));
   try {
     const value = window.sessionStorage.getItem(storageKey);
     return value ? JSON.parse(value) : null;
   } catch {
+    removeSession(storageKey);
     return null;
   }
 }
@@ -109,13 +133,16 @@ function readSession(storageKey) {
 function writeSession(storageKey, value) {
   try {
     window.sessionStorage.setItem(storageKey, JSON.stringify(value));
+    sessionFallback.delete(storageKey);
     return true;
   } catch {
+    sessionFallback.set(storageKey, JSON.stringify(value));
     return false;
   }
 }
 
 function removeSession(storageKey) {
+  sessionFallback.delete(storageKey);
   try {
     window.sessionStorage.removeItem(storageKey);
   } catch {
@@ -124,6 +151,8 @@ function removeSession(storageKey) {
 }
 
 function clearSessionNamespace() {
+  sessionFallback.clear();
+  transient.clear();
   try {
     const targets = [];
     for (let index = 0; index < window.sessionStorage.length; index += 1) {
@@ -149,20 +178,14 @@ function sanitizeIdList(candidate, limit = 500) {
   return Array.from(seen).slice(0, limit);
 }
 
-function cleanNickname(value) {
-  return String(value ?? "")
-    .replace(/[\u0000-\u001f\u007f]/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 24);
-}
-
 function isIntegerBetween(value, min, max) {
   return Number.isInteger(value) && value >= min && value <= max;
 }
 
 function sanitizeProgress(test, candidate) {
   if (!candidate || candidate.v !== 1 || candidate.testId !== test.id) return null;
+  const schema = assessmentSchema(test);
+  if (candidate.schema && candidate.schema !== schema) return { stale: true, answers: {}, order: {}, testId: test.id };
   const answers = {};
   const order = {};
   const questionsById = new Map(test.questions.map((question) => [question.id, question]));
@@ -193,6 +216,7 @@ function sanitizeProgress(test, candidate) {
 
   return {
     v: 1,
+    schema,
     testId: test.id,
     nickname: cleanNickname(candidate.nickname),
     answers,
@@ -207,6 +231,8 @@ function sanitizeResult(test, candidate) {
   if (!candidate || candidate.v !== 1 || candidate.testId !== test.id) return null;
   if (!Array.isArray(candidate.dimensions) || candidate.dimensions.length !== 6) return null;
   if (!candidate.dimensions.every((value) => isIntegerBetween(value, 0, 100))) return null;
+  const schema = assessmentSchema(test);
+  if (candidate.schema && candidate.schema !== schema) return null;
 
   const validQuestionIds = new Set(test.questions.map((question) => question.id));
   const answers = {};
@@ -218,14 +244,17 @@ function sanitizeResult(test, candidate) {
     });
   }
 
+  if (Object.keys(answers).length !== test.questions.length || !cleanNickname(candidate.nickname)) return null;
+  const score = scoreAssessment(test, answers);
   return {
     v: 1,
+    schema,
     testId: test.id,
     nickname: cleanNickname(candidate.nickname),
-    dimensions: candidate.dimensions.slice(),
+    dimensions: score.dimensions.map(d => d.percentage),
     answers,
-    derived: candidate.derived && typeof candidate.derived === "object" ? candidate.derived : {},
-    safety: candidate.safety && typeof candidate.safety === "object" ? candidate.safety : { level: "none", reasons: [], flags: [] },
+    derived: score.derived,
+    safety: evaluateSafety(test, answers, score),
     completedAt: Number.isFinite(candidate.completedAt) ? candidate.completedAt : Date.now()
   };
 }
@@ -237,9 +266,9 @@ function sanitizeResult(test, candidate) {
  * is returned marked `stale` so the view can offer a restart instead of
  * silently mapping old answers onto changed options.
  */
-function sanitizeAlignmentRecord(map, candidate) {
+export function sanitizeAlignmentRecord(map, candidate) {
   if (!candidate || candidate.v !== 1 || candidate.mapId !== map.id) return null;
-  if (Number.isFinite(candidate.contentVersion) && candidate.contentVersion !== map.contentVersion) {
+  if (candidate.contentVersion !== map.contentVersion) {
     return { v: 1, mapId: map.id, stale: true, contentVersion: candidate.contentVersion, answers: {}, importance: {} };
   }
 
@@ -294,12 +323,11 @@ export const storage = {
   },
 
   getNickname() {
-    return cleanNickname(readRaw(key.nickname));
+    return cleanNickname(transient.get(key.nickname) ?? (privateModeEnabled() ? "" : readRaw(key.nickname)));
   },
 
   setNickname(value) {
-    if (privateModeEnabled()) return;
-    writeRaw(key.nickname, cleanNickname(value));
+    if (privateModeEnabled() || !writeRaw(key.nickname, cleanNickname(value))) transient.set(key.nickname, cleanNickname(value));
   },
 
   getProgress(test) {
@@ -316,6 +344,7 @@ export const storage = {
 
   deleteProgress(assessmentId) {
     remove(key.progress(assessmentId));
+    removeSession(`${sessionKey.prefix}notes:${assessmentId}`);
   },
 
   getResult(test) {
@@ -337,7 +366,9 @@ export const storage = {
   getPair(assessmentId) {
     const value = readJSON(key.pair(assessmentId));
     if (!value || value.v !== 1 || value.assessmentId !== assessmentId || !value.payload) return null;
-    return value;
+    const decoded = decodePairingCode(value.code, { expectedAssessmentId: assessmentId });
+    if (!decoded.ok) { remove(key.pair(assessmentId)); return null; }
+    return { ...value, payload: decoded.payload };
   },
 
   setPair(assessmentId, code, payload) {
@@ -355,16 +386,20 @@ export const storage = {
   },
 
   getPendingCode(assessmentId) {
-    return readRaw(key.pending(assessmentId));
+    const session = readSession(`${sessionKey.prefix}pending:${assessmentId}`);
+    const legacy = readRaw(key.pending(assessmentId));
+    if (legacy) this.setPendingCode(assessmentId, legacy);
+    return session || legacy;
   },
 
   setPendingCode(assessmentId, code) {
-    if (privateModeEnabled()) return;
-    writeRaw(key.pending(assessmentId), String(code || "").slice(0, 4096));
+    remove(key.pending(assessmentId));
+    writeSession(`${sessionKey.prefix}pending:${assessmentId}`, String(code || "").slice(0, 4096));
   },
 
   deletePendingCode(assessmentId) {
     remove(key.pending(assessmentId));
+    removeSession(`${sessionKey.prefix}pending:${assessmentId}`);
   },
 
   restartAssessment(assessmentId) {
@@ -372,6 +407,8 @@ export const storage = {
     remove(key.result(assessmentId));
     remove(key.pair(assessmentId));
     remove(key.pending(assessmentId));
+    this.deletePendingCode(assessmentId);
+    removeSession(`${sessionKey.prefix}notes:${assessmentId}`);
   },
 
   /* ---------------------------------------------------------------- private mode */
@@ -381,6 +418,8 @@ export const storage = {
   },
 
   setPrivateMode(enabled) {
+    transient.clear();
+    privateOverride = Boolean(enabled);
     if (enabled) writeRaw(key.privateMode, "on");
     else remove(key.privateMode);
   },
@@ -411,6 +450,7 @@ export const storage = {
     const raw = readJSON(key.alignResult(map.id));
     const value = sanitizeAlignmentRecord(map, raw);
     if (raw && !value) remove(key.alignResult(map.id));
+    if (value && !value.stale && Object.keys(value.answers).length !== map.items.length) return null;
     return value;
   },
 
@@ -422,7 +462,23 @@ export const storage = {
   getAlignmentPair(mapId) {
     const value = readJSON(key.alignPair(mapId));
     if (!value || value.v !== 1 || value.mapId !== mapId || !value.payload) return null;
-    return value;
+    const map = window.BAYNANA_ALIGNMENT?.maps.find(entry => entry.id === mapId);
+    const decoded = decodeAlignmentCode(value.code, { expectedMapId: mapId, map });
+    if (!decoded.ok) { remove(key.alignPair(mapId)); return null; }
+    return { ...value, payload: decoded.payload };
+  },
+
+  getPendingAlignmentCode(mapId) {
+    const value = readSession(`${sessionKey.prefix}pending:align:${mapId}`);
+    return typeof value === "string" && value.length <= 4096 ? value : null;
+  },
+
+  setPendingAlignmentCode(mapId, code) {
+    writeSession(`${sessionKey.prefix}pending:align:${mapId}`, String(code || "").slice(0, 4096));
+  },
+
+  deletePendingAlignmentCode(mapId) {
+    removeSession(`${sessionKey.prefix}pending:align:${mapId}`);
   },
 
   setAlignmentPair(mapId, code, payload) {
@@ -437,6 +493,7 @@ export const storage = {
     remove(key.alignProgress(mapId));
     remove(key.alignResult(mapId));
     remove(key.alignPair(mapId));
+    this.deletePendingAlignmentCode(mapId);
   },
 
   /* ------------------------------------------------------------ conversation lists */
@@ -528,6 +585,7 @@ export const storage = {
 
   deleteAll() {
     clearSessionNamespace();
+    privateOverride = undefined;
     try {
       const targets = [];
       for (let index = 0; index < window.localStorage.length; index += 1) {

@@ -7,7 +7,7 @@ before this goes in front of real couples.
 
 ## A. Automated gates (run `npm test`)
 
-All of these must pass. They do today.
+All gates must pass for each candidate; see the dated handoff for run evidence.
 
 - [x] `validate-assessments` — the seventeen original IDs and Arabic titles are
       present and unchanged; six dimensions, eighteen questions, three per
@@ -49,7 +49,11 @@ All of these must pass. They do today.
 
 ---
 
-## B. Human review gates — none of these has been done
+Additional engineering gates: `npm run check`, `npm run build`, `npm run test:e2e`.
+The latter runs real-browser journeys and axe on the production artifact.
+`test-hardening` adds corrupt storage, schema, code-format, privacy, and exit regressions.
+
+## B. Specialist and comprehensive manual review gates — still open
 
 ### B1. Licensed relationship or mental-health professional — **BLOCKING**
 

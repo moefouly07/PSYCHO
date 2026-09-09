@@ -57,7 +57,7 @@ Private safety answers must never:
 | be shared with the partner | never rendered outside `#/safety/check` |
 | enter a couple score | not part of any scoring engine |
 | enter the discussion agenda | `addAgendaEntry()` calls `assertNoSafetyContent()` |
-| be encoded into a result code | `encodeAlignmentCode()` calls `assertNoSafetyContent()` on the **payload** |
+| be encoded into a result code | Both result encoders call `assertNoSafetyContent()` on the **payload** |
 | appear on a handoff screen | handoff views render no stored answer at all |
 | be exported | agenda export text is passed through `assertNoSafetyContent()` |
 | persist past the session | stored only under `baynana:v1:session:safety-check` in `sessionStorage` |
@@ -113,9 +113,18 @@ On activation it:
    (`config.quickExitDestination`, default `https://www.wikipedia.org/`), so the
    current page does not remain in the back history.
 
-**Escape never conflicts with dialogs.** The handler returns early when
-`dialog[open]` exists, so Escape still dismisses an open dialog normally. This
-matters for both accessibility and predictability.
+The capture-phase handler counts Escape even inside a dialog or mobile menu.
+The first press dismisses the dialog normally; a second within 900ms exits.
+Held-key repeats and composition events are ignored; other keys and route changes
+reset the sequence. Exit runs once, closes top-layer dialogs, blurs focus, and
+clears all temporary feature state before replacing the location. Persistent
+local results are intentionally retained; use the separate delete controls.
+
+Sensitive assessment and map deep links require per-activity session consent.
+Titles become neutral and stable aliases replace sensitive IDs in the current
+history entry. Old bookmarks still resolve. Incoming code fragments are removed
+from the current entry after consumption. This reduces incidental exposure;
+it does not erase earlier browser history or make aliases secret.
 
 ### What quick exit cannot do — stated in the UI
 

@@ -26,7 +26,6 @@ All keys are namespaced `baynana:v1:`. Nothing is written outside that prefix.
 | `baynana:v1:progress:<assessmentId>` | in-progress answers, randomized option order, index | assessment quiz |
 | `baynana:v1:result:<assessmentId>` | six dimension percentages, answers, derived indexes, safety level | assessment completion |
 | `baynana:v1:pair:<assessmentId>` | the partner's decoded BN1 payload | pairing |
-| `baynana:v1:pending:<assessmentId>` | a partner code received before the user answered | share link |
 | `baynana:v1:align:progress:<mapId>` | in-progress alignment answers and importance marks | alignment map |
 | `baynana:v1:align:result:<mapId>` | completed alignment answers and importance marks | alignment completion |
 | `baynana:v1:align:pair:<mapId>` | the partner's decoded BNA1 **category aggregates** | two-device comparison |
@@ -36,8 +35,9 @@ All keys are namespaced `baynana:v1:`. Nothing is written outside that prefix.
 | `baynana:v1:knowledge:summaries` | counts only: exact / close / different / excluded | explicit opt-in after a challenge |
 | `baynana:v1:premarital:agenda` | topic IDs and labels the users explicitly added | agenda buttons |
 
-Every read passes through a schema guard. Anything that fails validation is
-dropped, and a wholly invalid record is removed rather than repaired.
+Feature reads validate record shape and content versions. Assessment results are
+recomputed from complete valid answers; cached partner payloads are decoded again
+from the code. Invalid values are dropped and stale activities require restart.
 
 **Private mode blocks every write in this table** except the theme and the
 private-mode flag itself.
@@ -52,6 +52,10 @@ private-mode flag itself.
 | `baynana:v1:session:align:<mapId>:b` | partner B's item-level alignment answers | same |
 | `baynana:v1:session:align:<mapId>:mode` | which slot is currently answering | same |
 | `baynana:v1:session:knowledge` | the entire challenge: answers, predictions, confidences, marks | challenge ends, quick exit, delete-all, tab closes |
+| `baynana:v1:session:notes:<assessmentId>` | optional text notes, bounded to 2000 chars per question | completion, restart, delete-progress, quick exit, session clear |
+| `baynana:v1:session:pending:<assessmentId>` | received aggregate code awaiting own result | consumed, restart, quick exit, session clear |
+| `baynana:v1:session:pending:align:<mapId>` | received BNA1 aggregate code awaiting own map | consumed, restart, quick exit, session clear |
+| `baynana:v1:session:gate:*` | sensitive-route consent flag | quick exit, session clear, tab closes |
 | `baynana:v1:session:safety-check` | private safety self-check answers | explicit clear, quick exit, tab closes |
 
 `sessionStorage` is authoritative for the knowledge challenge: if the record is
@@ -60,12 +64,17 @@ from memory.
 
 ---
 
-## 4. What is never stored anywhere
+## 4. Data minimization and optional notes
 
-- Legal names, email addresses, phone numbers, postal addresses.
-- Exact income, bank details, account numbers, passwords.
-- Medical records or trauma narratives.
-- Free-text answers of any kind — the product has no free-text answer field.
+The product does not request legal identities, contact information, financial
+credentials, medical records, or trauma narratives. Optional free-text fields
+cannot prevent a person from typing identifying information.
+
+Assessment notes live only in sessionStorage; conversation notes live only in
+memory and disappear on refresh. Neither enters results, share codes, or exports.
+There is no conversation answer-code import/export.
+
+Never stored or recorded:
 - Anything a user says out loud during a conversation session. The device does
   not record the conversation, and the UI says so.
 - Item-level knowledge-challenge answers in `localStorage`. Enforced by
@@ -76,13 +85,16 @@ from memory.
 
 ## 5. Result codes
 
-### BN1 — assessment codes (unchanged)
+### BN1 — assessment codes (backward compatible)
 
 ```text
 [ version, assessmentId, nickname, [6 dimension percentages], derived, completedAt, checksum ]
 ```
 
-### BNA1 — alignment codes (new)
+New encoders emit an empty `derived` object, removing unnecessary derived and
+safety metadata. Historical codes with allowlisted derived fields still decode.
+
+### BNA1 — alignment codes
 
 ```text
 [ version, mapId, nickname, contentVersion, [category aggregates], completedAt, checksum ]
@@ -93,7 +105,7 @@ Each category aggregate is:
 ```text
 { id, p, n, o, u, s, e }
 
-p  mean position across ANSWERED ORDERED items, 0..100, or null
+p  mean position across >=2 ANSWERED ORDERED items, 0..100, otherwise null
 n  how many ordered items contributed
 o  how many ordered items the category has
 u  how many items were "not yet discussed" or unanswered
@@ -101,7 +113,10 @@ s  how many items were kept private
 e  how many items the sender marked "essential to discuss"
 ```
 
-**No item-level answer and no free text is present.** Nominal items never
+**No item-level answer or free-text note is present.** Nicknames remain visible.
+Single-contributor means are suppressed on encoding and decoding. Aggregation is
+not anonymization: extreme means, small categories, and repeated shares can
+still allow inferences about answers. Nominal items never
 contribute to `p`, because averaging unordered categories is meaningless.
 
 The decoder rejects: oversized input, malformed format, corrupted payloads,
@@ -141,7 +156,7 @@ server":
 - Anyone with access to this device or browser profile can see locally stored
   progress.
 
-No third-party runtime code exists: no fonts, CDNs, analytics, chat widgets,
+No third-party runtime code or external font loading exists: no CDNs, analytics, chat widgets,
 tracking pixels, cookie banners, or remote API calls. The Content-Security-Policy
 enforces this with `connect-src 'none'` and `default-src 'self'`.
 
@@ -171,6 +186,11 @@ namespaced key afterwards and asserts the list is empty.
 
 ## 8. Retention
 
-There is no retention policy, because there is no retention: no server ever
-receives the data. Local data lives until the user deletes it, clears site data,
-or (for session data) closes the tab.
+The app uploads no answer data. Hosting request logs follow the hosting provider
+policy. Local data persists until deletion or clearing site data. sessionStorage
+normally ends with the tab, but browser restore or duplicated tabs may preserve
+it; explicitly ending the session is the reliable application cleanup control.
+
+Private mode keeps otherwise-persistent activity data in memory until reload or
+mode change. Denied/quota-limited storage uses memory fallbacks without crashing.
+Turning private mode off never migrates those temporary answers to localStorage.

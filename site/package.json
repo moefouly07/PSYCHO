@@ -9,8 +9,17 @@
     "test:core": "node scripts/test-core.mjs",
     "test:engines": "node scripts/test-engines.mjs",
     "test:views": "node scripts/test-views.mjs",
-    "test": "npm run validate && npm run test:core && npm run test:engines && npm run test:views && npm run test:links",
-    "serve": "python -m http.server 5173",
-    "test:links": "node scripts/test-links.mjs"
+    "test": "npm run validate && npm run test:core && npm run test:engines && npm run test:views && npm run test:links && npm run test:hardening",
+    "serve": "node scripts/serve.mjs",
+    "test:links": "node scripts/test-links.mjs",
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/serve.mjs",
+    "check": "node scripts/check.mjs",
+    "test:hardening": "node scripts/test-hardening.mjs",
+    "test:e2e": "npm run build && playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0"
   }
 }

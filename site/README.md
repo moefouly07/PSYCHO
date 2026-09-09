@@ -20,7 +20,7 @@ scientifically equivalent.
 |---|---|---|---|
 | **Behavioral assessments** | `assessment` | yes (0/1/2 items) | six dimension percentages, descriptive bands, dimension-level reading |
 | **Neutral alignment maps** | `alignment` | **no** | same / close / different / not-yet-discussed / private per item — no number of any kind |
-| **Conversation library** | `conversation` | no | questions to talk about; nothing recorded |
+| **Conversation library** | `conversation` | no | questions and optional device-only notes |
 | **Knowledge challenge** | `knowledge` | within one session only | two separate direction results, never combined |
 
 Why alignment maps are not scored, and why differences are not deficits:
@@ -52,7 +52,7 @@ duplicating it.
 
 ## Routes
 
-All state lives in the URL hash, so every route opens directly, survives a
+Routes live in the URL hash, so every route opens directly, survives a
 refresh, and works from a subdirectory on Vercel and GitHub Pages.
 
 ```text
@@ -88,7 +88,7 @@ Legacy `#/t/:id` bookmarks still resolve to the equivalent view.
 
 ## Architecture
 
-No build step, no runtime dependencies, no third-party runtime code.
+No runtime dependencies or third-party runtime code. A small Node build copies only production assets into `dist`; Playwright and axe are development-only dependencies.
 
 ```text
 index.html
@@ -96,6 +96,8 @@ assets/
   css/    tokens · base · components · pages
   js/
     app.js               shell, routing dispatch, assessment views
+    home.js              editorial homepage and engine entry points
+    sensitive-gate.js    session-scoped consent for sensitive routes
     dom.js               shared DOM helpers + Arabic search normalization
     router.js            hash routing for every area
     storage.js           namespaced local/session persistence, schema guards, private mode
@@ -134,8 +136,11 @@ Assessment scoring is unchanged:
 ```text
 dimension raw     = sum of three item scores           (0…6)
 dimension percent = round(raw / 6 * 100)               (0…100)
-response similarity = round(100 - mean(six dimension gaps))
+
 ```
+
+The legacy comparison helper remains internally compatible; its overall similarity
+is never displayed or exported. Results show six separate dimensions.
 
 Interpretive copy always follows the **named raw percentage**, so a negative
 dimension at 100% reads as *a lot of the named indicator*, never as a good
@@ -169,20 +174,23 @@ rather than shown as `0%`. The two directions are never combined.
 
 ## Result-code formats
 
-### BN1 — assessments (unchanged, still accepted)
+### BN1 — assessments (backward compatible)
 
 ```text
 [ version, assessmentId, nickname, [6 percentages], derived, completedAt, checksum ]
 ```
 
-### BNA1 — alignment maps (new)
+New BN1 codes leave `derived` empty; raw answers, notes, and safety flags are excluded.
+The decoder accepts allowlisted fields in historical codes.
+
+### BNA1 — alignment maps
 
 ```text
 [ version, mapId, nickname, contentVersion, [category aggregates], completedAt, checksum ]
 ```
 
 Each aggregate carries only: category id, mean position across **answered
-ordered items** (or `null`), how many contributed, how many ordered items exist,
+ordered items**, with at least two contributors (otherwise `null`), how many contributed, how many ordered items exist,
 how many were not discussed, how many were kept private, and how many the sender
 marked essential.
 
@@ -279,67 +287,48 @@ Details: `docs/CONTENT_METHODOLOGY.md`.
 
 ---
 
-## Run locally
+## Run, build, and verify
+
+From `site/`, with Node 20+:
 
 ```powershell
-python -m http.server 5173
+npm ci
+npm run dev        # local source, http://127.0.0.1:5173/#/
+npm run check      # syntax checks, not a lint or TypeScript claim
+npm test           # six content validators + core/engine/view/link/hardening checks
+npm run test:e2e   # builds dist, then real-browser journeys and axe
+npm run build      # static dist: HTML, CSS, JS, content, fonts, host config
 ```
 
-Open `http://127.0.0.1:5173/#/`. Or `npm run serve`.
+Windows tests use installed Microsoft Edge; Linux CI installs Chromium with
+`npx playwright install --with-deps chromium`. Browser tests run under `/baynana/`
+to cover subdirectory hosting. DOM-shim tests remain a fast structural layer;
+they do not replace browser or assistive-technology testing.
 
-## Validate and test
+`.github/workflows/quality.yml` runs install, syntax, content, unit, view, link,
+and browser checks on pull requests. It does not deploy anything.
 
-```powershell
-npm test          # all validators + all test suites
-npm run validate  # content validators only
-```
+## Deploy the static build
 
-Individually:
+Set Vercel's project root to `site`, framework **Other**, install `npm ci`.
+`vercel.json` defines `npm run build` and output `dist`. Alternatively publish
+the contents of `dist` to GitHub Pages or any static host. Never publish the
+repository root or `node_modules`. No deployment was performed for this change.
 
-```powershell
-node scripts/validate-assessments.js
-node scripts/validate-alignment.js
-node scripts/validate-conversation.js
-node scripts/validate-knowledge.js
-node scripts/validate-sources.js
-node scripts/test-core.mjs
-node scripts/test-engines.mjs
-node scripts/test-views.mjs
-```
+Vercel applies strict CSP (no inline scripts/eval, `connect-src 'none'`),
+no-referrer, permissions and isolation headers. The HTML includes a matching
+meta CSP and referrer policy for hosts without response-header configuration;
+frame-ancestor protection requires response headers. No view may emit inline
+style attributes; chart CSSOM widths remain supported.
 
-`test-views.mjs` renders every route through a small first-party DOM shim
-(`scripts/lib/dom-shim.mjs`) rather than a headless browser, so the project keeps
-zero dependencies — runtime *and* development. It exercises complete flows and
-fails on any console error. Its limits are documented in
-`docs/ACCESSIBILITY_QA.md`.
+Fonts are self-hosted IBM Plex Sans Arabic and Markazi Text, reused from the
+existing design preview. Their SIL OFL licenses ship beside them in
+`assets/fonts`. Upstream license sources: [IBM Plex Sans Arabic](https://github.com/google/fonts/blob/main/ofl/ibmplexsansarabic/OFL.txt)
+and [Markazi Text](https://github.com/google/fonts/blob/main/ofl/markazitext/OFL.txt).
+No external font request occurs. Production excludes the design preview,
+test fixtures, tooling, and documentation. A sitemap awaits a canonical domain.
 
----
-
-## Deploy to Vercel
-
-- Framework Preset: **Other**
-- Install Command: empty
-- Build Command: empty
-- Output Directory: empty
-
-`vercel.json` sets a strict policy with **no `unsafe-inline` and no
-`unsafe-eval`**: `default-src 'self'`, `script-src 'self'`, `style-src 'self'`,
-`style-src-attr 'none'`, `img-src 'self' data:`, `connect-src 'none'`,
-`object-src 'none'`, `base-uri 'none'`, `form-action 'none'`,
-`frame-ancestors 'none'`, plus `Referrer-Policy: no-referrer`, a restrictive
-`Permissions-Policy`, `X-Content-Type-Options`, `X-Frame-Options: DENY`,
-cross-origin isolation headers, and HSTS.
-
-Because `style-src-attr` is `'none'`, **no view may emit an inline `style`
-attribute.** Use the `.spaced-sm` / `.spaced-md` / `.spaced-lg` utilities.
-Programmatic `element.style.width` (used by the charts and progress bars) is
-CSSOM and is not affected.
-
-GitHub Pages also works: all asset paths are relative and all routes are in the
-hash.
-
-A sitemap is intentionally absent because no canonical production domain is
-configured. `robots.txt` is present.
+See `docs/ENGINEERING_HANDOFF.md` for changes, evidence, and remaining limits.
 
 ---
 

@@ -30,6 +30,17 @@ export function element(tag, attributes = {}, children = []) {
     if (child === null || child === undefined || child === false) return;
     node.append(child instanceof Node ? child : document.createTextNode(String(child)));
   });
+  if (attributes.role === "radiogroup") {
+    node.addEventListener("keydown", event => {
+      const radios = Array.from(node.querySelectorAll('[role="radio"]'));
+      const index = radios.indexOf(event.target);
+      const offset = { ArrowDown: 1, ArrowUp: -1, ArrowLeft: 1, ArrowRight: -1 }[event.key];
+      if (index < 0 || offset === undefined) return;
+      event.preventDefault();
+      // Horizontal direction follows the document's RTL reading order.
+      radios[(index + offset + radios.length) % radios.length].click();
+    });
+  }
   return node;
 }
 
@@ -111,7 +122,7 @@ export function confirmAction({ title, message, confirmLabel = "تأكيد", dan
       return;
     }
     const previouslyFocused = document.activeElement;
-    const dialog = element("dialog", { class: "confirm-dialog" });
+    const dialog = element("dialog", { class: "confirm-dialog", "aria-labelledby": "confirm-title", "aria-describedby": "confirm-description" });
     const cancel = element("button", { type: "button", class: "button button--secondary", text: "تراجع" });
     const confirm = element("button", {
       type: "button",
@@ -119,8 +130,8 @@ export function confirmAction({ title, message, confirmLabel = "تأكيد", dan
       text: confirmLabel
     });
     dialog.append(element("div", { class: "dialog-body stack" }, [
-      element("h2", { text: title }),
-      element("p", { text: message }),
+      element("h2", { id: "confirm-title", text: title }),
+      element("p", { id: "confirm-description", text: message }),
       element("div", { class: "cluster" }, [confirm, cancel])
     ]));
     const finish = (value) => {
@@ -134,7 +145,7 @@ export function confirmAction({ title, message, confirmLabel = "تأكيد", dan
     dialog.addEventListener("cancel", (event) => { event.preventDefault(); finish(false); });
     document.body.append(dialog);
     dialog.showModal();
-    confirm.focus();
+    cancel.focus();
   });
 }
 

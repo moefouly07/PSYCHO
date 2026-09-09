@@ -175,10 +175,17 @@ export function createQuickExit({ destination, onExit } = {}) {
     ? destination
     : QUICK_EXIT_DEFAULT_DESTINATION;
 
-  let lastEscape = 0;
+  quickExitState?.destroy();
+  let lastEscape = null;
   let sensitive = false;
+  let exited = false;
 
   function coverAndLeave() {
+    if (exited) return;
+    exited = true;
+    document.querySelectorAll("dialog[open]").forEach(dialog => dialog.close());
+    document.activeElement?.blur?.();
+    document.title = "صفحة جديدة";
     const overlay = document.createElement("div");
     overlay.className = "quick-exit-overlay";
     overlay.setAttribute("role", "presentation");
@@ -193,14 +200,13 @@ export function createQuickExit({ destination, onExit } = {}) {
   }
 
   function onKeydown(event) {
-    if (event.key !== "Escape" || !sensitive) return;
-    // Never steal Escape from an open dialog: that would break dialog dismissal.
-    if (document.querySelector("dialog[open]")) return;
-    // Nor from an open mobile menu, whose own Escape handler closes it.
-    if (document.querySelector("#menu-toggle[aria-expanded='true']")) return;
+    if (event.key !== "Escape") { lastEscape = null; return; }
+    if (!sensitive || event.repeat || event.isComposing) return;
+    // Capture the first press while allowing native modal/menu dismissal.
+    // The next deliberate press still exits, including from nested views.
     const now = Date.now();
-    if (now - lastEscape < 900) {
-      lastEscape = 0;
+    if (lastEscape !== null && now - lastEscape < 900) {
+      lastEscape = null;
       event.preventDefault();
       coverAndLeave();
       return;
@@ -208,12 +214,13 @@ export function createQuickExit({ destination, onExit } = {}) {
     lastEscape = now;
   }
 
-  document.addEventListener("keydown", onKeydown);
+  document.addEventListener("keydown", onKeydown, true);
 
   quickExitState = {
     destination: target,
     exit: coverAndLeave,
-    setSensitive(value) { sensitive = Boolean(value); },
+    setSensitive(value) { sensitive = Boolean(value); lastEscape = null; if (!document.body.classList.contains("is-quick-exiting")) exited = false; },
+    destroy() { document.removeEventListener("keydown", onKeydown, true); },
     isSensitive() { return sensitive; }
   };
   return quickExitState;

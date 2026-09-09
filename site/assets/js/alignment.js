@@ -13,6 +13,7 @@
 
 import { toBase64Url, fromBase64Url, checksum, cleanNickname } from "./pairing.js";
 import { assertNoSafetyContent } from "./safety.js";
+import { alignmentPath } from "./router.js";
 
 const PREFIX = "BNA1.";
 const VERSION = 1;
@@ -32,6 +33,7 @@ export const STATUS = {
  * invented between categories that have no order.
  */
 export function classifyItem(item, ownAnswer, peerAnswer) {
+  const valid = value => Number.isInteger(value) && item.options.some(option => option.v === value);
   if (ownAnswer === undefined || peerAnswer === undefined) {
     return { status: STATUS.unsure, reason: "missing", distance: null };
   }
@@ -41,6 +43,7 @@ export function classifyItem(item, ownAnswer, peerAnswer) {
   if (ownAnswer === "unsure" || peerAnswer === "unsure") {
     return { status: STATUS.unsure, reason: "not-discussed", distance: null };
   }
+  if (!valid(ownAnswer) || !valid(peerAnswer)) return { status: STATUS.unsure, reason: "invalid", distance: null };
   if (item.type === "nominal") {
     return {
       status: ownAnswer === peerAnswer ? STATUS.same : STATUS.different,
@@ -161,7 +164,8 @@ export function buildCategoryAggregates(map, record) {
       if (importanceOf(record, item.id) === "essential") essential += 1;
     });
 
-    const mean = positions.length
+    // A single contribution would disclose that item's exact answer.
+    const mean = positions.length >= 2
       ? Math.round((positions.reduce((total, value) => total + value, 0) / positions.length) * 25)
       : null;
 
@@ -233,7 +237,7 @@ function buildBase(record) {
     String(record.mapId || ""),
     cleanNickname(record.nickname),
     Number.isInteger(record.contentVersion) ? record.contentVersion : 1,
-    normalizeAggregates(record.aggregates) || [],
+    (normalizeAggregates(record.aggregates) || []).map(entry => ({ ...entry, p: entry.n < 2 ? null : entry.p })),
     Number.isFinite(record.completedAt) ? Math.round(record.completedAt) : Date.now()
   ];
 }
@@ -262,7 +266,8 @@ export function decodeAlignmentCode(input, options = {}) {
     return failure("size", "الرمز أطول مما تسمح به هذه الصفحة. تأكد من نسخ رمز واحد فقط.");
   }
 
-  const match = text.match(/BNA1\.([A-Za-z0-9_-]{12,})/);
+  if (/^BNA(?!1\.)\d+\./.test(text.trim())) return failure("version", "نسخة الرمز غير مدعومة. أنشئا رمزًا جديدًا.");
+  const match = text.trim().match(/(?:^|\/partner\/)BNA1\.([A-Za-z0-9_-]{12,})$/);
   if (!match) {
     return failure("format", "لم أجد رمز خريطة صالحًا. يجب أن يبدأ الرمز بـ BNA1. وأن يُنسخ كاملًا.");
   }
@@ -321,6 +326,18 @@ export function decodeAlignmentCode(input, options = {}) {
   if (JSON.stringify(cleanAggregates) !== JSON.stringify(aggregates)) {
     return failure("aggregates", "الملخصات داخل الرمز غير صالحة.");
   }
+  const map = options.map || window.BAYNANA_ALIGNMENT?.maps.find(entry => entry.id === mapId);
+  if (new Set(cleanAggregates.map(entry => entry.id)).size !== cleanAggregates.length ||
+      cleanAggregates.some(entry => entry.n > entry.o || (entry.n === 0 && entry.p !== null))) {
+    return failure("aggregates", "الملخصات داخل الرمز غير متسقة. اطلب رمزًا جديدًا.");
+  }
+  if (map && (contentVersion !== map.contentVersion || cleanAggregates.length !== map.categories.length ||
+      map.categories.some(category => {
+        const entry = cleanAggregates.find(row => row.id === category.id);
+        const items = map.items.filter(item => item.cat === category.id);
+        return !entry || entry.o !== items.filter(item => item.type === "ordered").length ||
+          entry.u + entry.s + entry.n > items.length || entry.e > items.length;
+      }))) return failure("aggregates", "الرمز لا يحتوي على فئات هذه الخريطة كاملة وبصورة صحيحة. اطلب رمزًا جديدًا.");
 
   const latestAllowed = Date.now() + 24 * 60 * 60 * 1000;
   if (!Number.isInteger(completedAt) || completedAt < 0 || completedAt > latestAllowed) {
@@ -335,7 +352,7 @@ export function decodeAlignmentCode(input, options = {}) {
       mapId,
       nickname: cleanName,
       contentVersion,
-      aggregates: cleanAggregates,
+      aggregates: cleanAggregates.map(entry => ({ ...entry, p: entry.n < 2 ? null : entry.p })),
       completedAt,
       checksum: suppliedChecksum
     }
@@ -353,7 +370,7 @@ export function alignmentShareLink(mapId, code) {
   const root = window.location.origin === "null"
     ? window.location.href.split("#")[0]
     : `${window.location.origin}${window.location.pathname}`;
-  return `${root}#/premarital/align/${encodeURIComponent(mapId)}/partner/${code}`;
+  return `${root}${alignmentPath(mapId, "partner")}/${code}`;
 }
 
 export const alignmentConstants = { PREFIX, VERSION, MAX_CODE_LENGTH };

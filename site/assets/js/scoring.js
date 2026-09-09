@@ -108,6 +108,9 @@ export function scoreFromPercentages(test, percentages) {
 }
 
 export function scoreAssessment(test, answers) {
+  if (!test.questions.every(question => question.options.some(option => option.s === answers?.[question.id]))) {
+    throw new Error("Complete valid answers are required before scoring");
+  }
   const percentages = test.dimensions.map((dimension) => {
     const questions = test.questions.filter((question) => question.dim === dimension.id);
     const raw = questions.reduce((total, question) => total + Number(answers[question.id]), 0);

@@ -394,7 +394,7 @@ export function renderQuestionsSession() {
   }
 
   const question = sessionState.items[sessionState.index];
-  setSensitiveView(question?.sensitivity === "intimate");
+  setSensitiveView(sessionState.items.some(item => item.sensitivity === "intimate"));
 
   const card = element("article", { class: "surface-card quiz-card", tabindex: "-1" });
   const progressLine = element("p", { class: "fine-print", role: "status", "aria-live": "polite" });
@@ -435,7 +435,7 @@ function paintSessionQuestion(card, progressLine, timerLine, root) {
     class: "textarea session-answer",
     placeholder: "اكتب إجابتك هنا… (اختياري)",
     "aria-label": "إجابتك على هذا السؤال",
-    rows: "4"
+    rows: "4", maxlength: "2000"
   });
   if (sessionState.answers[question.id]) answerArea.value = sessionState.answers[question.id];
   answerArea.addEventListener("input", () => {
@@ -454,6 +454,7 @@ function paintSessionQuestion(card, progressLine, timerLine, root) {
     question.sensitivity === "intimate"
       ? element("p", { class: "fine-print", text: "سؤال حميمي واختياري. المرور عليه لا يحتاج إلى سبب." })
       : null,
+    element("p", { class: "fine-print", text: "ملاحظة اختيارية في ذاكرة الصفحة؛ تُحذف عند المغادرة أو التحديث ولا تُشارك في رمز." }),
     answerArea
   ]));
 
@@ -548,128 +549,24 @@ function paintSessionQuestion(card, progressLine, timerLine, root) {
   }
 }
 
-function buildShareCode(answers) {
-  const entries = Object.entries(answers).filter(([, value]) => value.trim());
-  if (entries.length === 0) return null;
-  const payload = entries.map(([id, text]) => {
-    const question = questionsById.get(id);
-    return { id, q: question ? question.prompt : id, a: text };
-  });
-  try {
-    return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-  } catch { return null; }
-}
-
-function decodeShareCode(code) {
-  try {
-    return JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
-  } catch { return null; }
-}
-
 function finishSessionView(root) {
   stopTimer();
   const seen = sessionState?.seen ?? 0;
   const passed = sessionState?.passed ?? 0;
   const answers = sessionState?.answers ?? {};
-  const answeredCount = Object.values(answers).filter((value) => value.trim()).length;
-
-  /* --- share-code box (only if at least one answer was written) --- */
-  const shareBox = element("div", { class: "share-code-box stack" });
-  if (answeredCount > 0) {
-    const code = buildShareCode(answers);
-    const codeArea = element("textarea", {
-      class: "textarea",
-      rows: "3",
-      readonly: "true",
-      "aria-label": "رمز المشاركة"
-    });
-    codeArea.value = code || "";
-
-    const copyBtn = element("button", {
-      type: "button",
-      class: "button button--secondary button--small",
-      text: "انسخ الرمز",
-      onclick: () => {
-        navigator.clipboard.writeText(codeArea.value).then(() => {
-          copyBtn.textContent = "تم النسخ ✓";
-          setTimeout(() => { copyBtn.textContent = "انسخ الرمز"; }, 2000);
-        });
-      }
-    });
-
-    shareBox.append(
-      element("p", { class: "eyebrow", text: "مشاركة إجاباتك" }),
-      element("p", { class: "fine-print", text: `كتبت ${answeredCount} إجابة. انسخ الرمز أدناه وأرسله لشريكك، ثم الصق رمزه في الحقل التالي لمقارنة الإجابات.` }),
-      codeArea,
-      copyBtn
-    );
-  }
-
-  /* --- partner-code import box --- */
-  const compareContainer = element("div", { class: "stack" });
-  const partnerInput = element("textarea", {
-    class: "textarea",
-    rows: "3",
-    placeholder: "الصق رمز شريكك هنا…",
-    "aria-label": "رمز الشريك"
-  });
-  const compareBtn = element("button", {
-    type: "button",
-    class: "button button--primary button--small",
-    text: "قارن الإجابات",
-    onclick: () => {
-      const decoded = decodeShareCode(partnerInput.value);
-      if (!decoded || !Array.isArray(decoded)) {
-        announce("الرمز غير صالح. تأكد من نسخه بالكامل.");
-        return;
-      }
-      clear(compareContainer);
-      const partnerMap = new Map(decoded.map((entry) => [entry.id, entry]));
-      const allIds = new Set([...Object.keys(answers), ...decoded.map((entry) => entry.id)]);
-
-      for (const id of allIds) {
-        const question = questionsById.get(id);
-        const myAnswer = answers[id]?.trim() || "";
-        const partnerEntry = partnerMap.get(id);
-        const partnerAnswer = partnerEntry ? partnerEntry.a?.trim() || "" : "";
-        if (!myAnswer && !partnerAnswer) continue;
-
-        compareContainer.append(element("div", { class: "stack--sm" }, [
-          element("h3", { class: "fine-print", text: question ? question.prompt : id }),
-          element("div", { class: "partner-compare" }, [
-            element("div", {}, [
-              element("p", { class: "eyebrow", text: "أنا" }),
-              element("p", { text: myAnswer || "—" })
-            ]),
-            element("div", {}, [
-              element("p", { class: "eyebrow", text: "شريكي" }),
-              element("p", { text: partnerAnswer || "—" })
-            ])
-          ])
-        ]));
-      }
-      if (compareContainer.children.length === 0) {
-        compareContainer.append(element("p", { class: "fine-print", text: "لا توجد إجابات مشتركة للمقارنة." }));
-      }
-    }
-  });
-
+  const notes = Object.entries(answers).filter(([, value]) => value.trim());
   clear(root);
   root.append(element("div", { class: "surface-card stack" }, [
-    element("p", { class: "eyebrow", text: "نهاية الجلسة" }),
     element("h1", { text: "تكفي هذه الجلسة" }),
     element("p", { class: "lede", text: `تحدثتما في ${seen} سؤالًا، ومررتما على ${passed}. المرور خيار كامل ولا يحتاج إلى تفسير.` }),
-    element("div", { class: "notice" }, [
-      element("strong", { text: "قبل أن تغلقا الصفحة" }),
-      element("p", { text: "لم يُسجَّل شيء ممّا قلتماه. اختارا معًا شيئًا واحدًا سمعتماه اليوم وتودّان تذكّره، ثم اتركا الباقي." })
-    ]),
-    shareBox,
-    element("div", { class: "share-code-box stack" }, [
-      element("p", { class: "eyebrow", text: "استيراد إجابات الشريك" }),
-      partnerInput,
-      compareBtn,
-      compareContainer
-    ]),
+    element("p", { class: "notice", text: "لم يُسجَّل شيء ممّا قلتماه. الملاحظات التي اخترت كتابتها ظاهرة هنا فقط، وتختفي عند مغادرة الصفحة أو تحديثها. لا نضع النصوص الخاصة في رموز مشاركة." }),
+    notes.length ? element("details", { class: "stack" }, [
+      element("summary", { text: "مراجعة ملاحظاتي على هذا الجهاز" }),
+      ...notes.map(([id, text]) => element("article", { class: "stack spaced-sm" }, [
+        element("h2", { text: questionsById.get(id)?.prompt || "ملاحظة" }),
+        element("p", { class: "private-note", text })
+      ]))
+    ]) : null,
     element("div", { class: "cluster" }, [
       element("a", { class: "button button--primary", href: "#/questions", text: "ارجعا إلى المكتبة" }),
       element("a", { class: "button button--secondary", href: "#/questions/favorites", text: "المفضلة ولاحقًا" }),

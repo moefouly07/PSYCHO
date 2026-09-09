@@ -1,9 +1,13 @@
+import { assertNoSafetyContent } from "./safety.js";
+import { assessmentPath } from "./router.js";
+
 const PREFIX = "BN1.";
 const VERSION = 1;
 
 export function cleanNickname(value) {
   return String(value ?? "")
     .replace(/[\u0000-\u001f\u007f]/g, "")
+    .replace(/[\u202a-\u202e\u2066-\u2069]/g, "")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 24);
@@ -38,7 +42,7 @@ function normalizeDerived(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   const clean = {};
   Object.keys(value).sort().forEach((name) => {
-    if (!/^[a-z][a-z0-9-]{0,23}$/i.test(name)) return;
+    if (!["anxiety", "avoidance", "security", "tendency", "safety"].includes(name)) return;
     const item = value[name];
     if (Number.isInteger(item) && item >= 0 && item <= 100) clean[name] = item;
     if (typeof item === "string" && item.length <= 32 && /^[a-z0-9-]+$/i.test(item)) clean[name] = item;
@@ -58,7 +62,10 @@ function buildBase(record) {
 }
 
 export function encodePairingCode(record) {
-  const base = buildBase(record);
+  assertNoSafetyContent(record, "assessment share code");
+  // Derived traits can be reconstructed from dimensions. Item-level safety
+  // flags are private and must never travel in newly created codes.
+  const base = buildBase({ ...record, derived: {} });
   if (!base[1] || !base[2]) throw new Error("Assessment ID and nickname are required");
   if (base[3].length !== 6 || !base[3].every((value) => Number.isInteger(value) && value >= 0 && value <= 100)) {
     throw new Error("Six valid dimension percentages are required");
@@ -72,7 +79,10 @@ function decodeFailure(code, message) {
 }
 
 export function decodePairingCode(input, options = {}) {
-  const match = String(input ?? "").match(/BN1\.([A-Za-z0-9_-]{12,})/);
+  const text = String(input ?? "").trim();
+  if (text.length > 4096) return decodeFailure("size", "الرمز طويل جدًا. انسخ رمزًا واحدًا كاملًا وأعد المحاولة.");
+  if (/^BN(?!1\.)\d+\./.test(text)) return decodeFailure("version", "نسخة الرمز غير مدعومة. أنشئ رمزًا جديدًا من النسخة الحالية.");
+  const match = text.match(/(?:^|\/partner\/)BN1\.([A-Za-z0-9_-]{12,})$/);
   if (!match) {
     return decodeFailure("format", "لم أجد رمز نتيجة صالحًا. يجب أن يبدأ الرمز بـ BN1. وأن يُنسخ كاملًا.");
   }
@@ -156,14 +166,11 @@ export function isSameResult(first, second) {
 }
 
 export function resultRecordForCode(test, result, score) {
-  const derived = { ...score.derived };
-  const safetyLevel = result.safety?.level === "high" ? 2 : result.safety?.level === "caution" ? 1 : 0;
-  if (safetyLevel) derived.safety = safetyLevel;
   return {
     assessmentId: test.id,
     nickname: result.nickname,
     dimensions: score.dimensions.map((dimension) => dimension.percentage),
-    derived,
+    derived: {},
     completedAt: result.completedAt
   };
 }
@@ -172,10 +179,9 @@ export function shareLinkFor(assessmentId, code) {
   const root = window.location.origin === "null"
     ? window.location.href.split("#")[0]
     : `${window.location.origin}${window.location.pathname}`;
-  const encodedId = encodeURIComponent(assessmentId);
   return code
-    ? `${root}#/assessment/${encodedId}/partner/${code}`
-    : `${root}#/assessment/${encodedId}`;
+    ? `${root}${assessmentPath(assessmentId, "partner")}/${code}`
+    : `${root}${assessmentPath(assessmentId)}`;
 }
 
 export const pairingConstants = { PREFIX, VERSION };
