@@ -1,3 +1,5 @@
+import { sensitiveGate } from "./sensitive-gate.js";
+import { renderHome } from "./home.js";
 import { storage } from "./storage.js";
 import {
   scoreAssessment,
@@ -15,7 +17,7 @@ import {
 } from "./pairing.js";
 import { evaluateSafety, sharedSafetyLevel, sharedSafetyMessage, createQuickExit, setSensitiveView } from "./safety.js";
 import { createDimensionMeters, createComparisonChart } from "./charts.js";
-import { currentRoute, navigate, assessmentPath, updateActiveNavigation } from "./router.js";
+import { currentRoute, navigate, assessmentPath, alignmentPath, updateActiveNavigation } from "./router.js";
 import {
   element, clear, announce, statusNode, setStatus, sectionHeading, breadcrumbs,
   copyText, exportText, confirmAction, normalizeArabic, isolatedCode
@@ -51,11 +53,11 @@ const faqItems = [
   },
   {
     question: "هل يستطيع شريكي رؤية إجاباتي؟",
-    answer: "لا. رمز النتيجة يحمل اسمًا مختصرًا ونسب الأبعاد الستة والمؤشرات المشتقة الضرورية فقط. لا يحمل إجابات الأسئلة ولا الملاحظات الخاصة."
+    answer: "لا. رمز النتيجة يحمل اسمًا مختصرًا ونسب الأبعاد الستة ووقت الإكمال فقط، إلى جانب بيانات التحقق من الرمز. لا يحمل إجابات الأسئلة ولا الملاحظات الخاصة ولا مؤشرات السلامة."
   },
   {
-    question: "ماذا تعني نسبة تقارب الإجابات؟",
-    answer: "هي وصف حسابي لمدى قرب نسبكما في الأبعاد الستة. لا تقيس الحب أو جودة العلاقة، ولا تتنبأ بنجاح الزواج أو فشله."
+    question: "كيف تُقرأ المقارنة؟",
+    answer: "تُعرض الأبعاد الستة جنبًا إلى جنب لتسمية أوجه التقارب والاختلاف. لا توجد نسبة إجمالية للعلاقة أو حكم على مستقبلها."
   },
   {
     question: "أين تُحفظ بياناتي؟",
@@ -137,225 +139,6 @@ function faqAccordion(items = faqItems) {
       element("div", { class: "accordion-content" }, [element("p", { text: item.answer })])
     ])
   ));
-}
-
-function icon(paths, extra = {}) {
-  return element("svg", {
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    "stroke-width": "1.8",
-    "stroke-linecap": "round",
-    "stroke-linejoin": "round",
-    "aria-hidden": "true",
-    focusable: "false",
-    ...extra
-  }, paths.map((d) => element("path", { d })));
-}
-
-function checkIcon() {
-  return icon(["M20 6 9 17l-5-5"]);
-}
-
-/*
- * A bounded, purely decorative motif: two people leaning toward a shared
- * centre. It is capped by .hero-visual in CSS, cannot define page height,
- * and is hidden from assistive technology and from pointer events.
- */
-function heroVisual() {
-  const svg = element("svg", {
-    viewBox: "0 0 320 260",
-    role: "presentation",
-    "aria-hidden": "true",
-    focusable: "false",
-    class: "decorative"
-  }, [
-    element("circle", { cx: "112", cy: "96", r: "44", fill: "var(--color-primary-tint)", opacity: "0.55" }),
-    element("circle", { cx: "208", cy: "96", r: "44", fill: "var(--color-accent-tint)", opacity: "0.65" }),
-    element("circle", { cx: "160", cy: "96", r: "20", fill: "var(--color-surface)", opacity: "0.85" }),
-    element("path", {
-      d: "M64 186c0-26 22-44 48-44s48 18 48 44",
-      fill: "none",
-      stroke: "var(--color-primary)",
-      "stroke-width": "5",
-      "stroke-linecap": "round"
-    }),
-    element("path", {
-      d: "M160 186c0-26 22-44 48-44s48 18 48 44",
-      fill: "none",
-      stroke: "var(--color-accent)",
-      "stroke-width": "5",
-      "stroke-linecap": "round"
-    }),
-    element("path", {
-      d: "M40 216h240",
-      fill: "none",
-      stroke: "var(--color-border-strong)",
-      "stroke-width": "3",
-      "stroke-linecap": "round",
-      opacity: "0.5"
-    })
-  ]);
-  return element("div", { class: "hero-visual" }, [svg]);
-}
-
-const HOME_PRIMARY_CARDS = [
-  {
-    tone: "primary",
-    title: "الاختبارات النفسية",
-    text: "عشرون تقييمًا سلوكيًا يجيب عنها كل طرف بمفرده، ثم تُقارن النسب دون كشف الإجابات.",
-    cta: "شاهدا الاختبارات النفسية",
-    route: "#/assessments",
-    paths: ["M5 20V10", "M12 20V4", "M19 20v-6"]
-  },
-  {
-    tone: "accent",
-    title: "الرحلة قبل الزواج",
-    text: "مسار منظم لأهم الموضوعات والقرارات التي تستحق النقاش قبل الزواج.",
-    cta: "ابدآ الرحلة",
-    route: "#/premarital",
-    paths: ["M4 6h16", "M4 12h16", "M4 18h10"]
-  }
-];
-
-const HOME_SECONDARY_CARDS = [
-  {
-    tone: "positive",
-    title: "أسئلة بيننا",
-    text: "أسئلة مصنفة تبدأ بخفة وتتدرج إلى حوارات أعمق عن الحياة والمستقبل.",
-    cta: "اختارا سؤالًا",
-    route: "#/questions",
-    paths: ["M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"]
-  },
-  {
-    tone: "warning",
-    title: "قد إيه تعرفني؟",
-    text: "تجربة لطيفة لاكتشاف ما تعرفه عن تفضيلات شريكك واحتياجاته وطموحاته.",
-    cta: "ابدآ التحدي",
-    route: "#/know-me",
-    paths: ["M12 17h.01", "M9.1 9a3 3 0 1 1 4.2 3.4c-.8.4-1.3 1.2-1.3 2.1"]
-  }
-];
-
-function homeCard(card) {
-  return element("a", { class: `home-card home-card--${card.tone}`, href: card.route }, [
-    element("span", { class: "home-card-icon" }, [icon(card.paths)]),
-    element("h3", { text: card.title }),
-    element("p", { text: card.text }),
-    element("span", { class: "home-card-cta" }, [
-      element("span", { text: card.cta }),
-      element("span", { "aria-hidden": "true", text: "←" })
-    ])
-  ]);
-}
-
-const HOME_TOPICS = [
-  { label: "التواصل", category: "communication" },
-  { label: "المال", category: "money" },
-  { label: "الأهل والحدود", category: "family" },
-  { label: "الأطفال والتربية", category: "children" },
-  { label: "العمل والسكن", category: "work" },
-  { label: "القيم والدين", category: "faith" },
-  { label: "الخلاف والاعتذار", category: "repair" },
-  { label: "المودة والحميمية", category: "intimacy" }
-];
-
-function renderHome() {
-  const root = element("div", { class: "view-enter" });
-
-  /* ------------------------------------------------------------- HERO */
-  root.append(element("section", { class: "home-hero" }, [
-    element("div", { class: "container" }, [
-      element("div", { class: "hero-grid" }, [
-        element("div", { class: "hero-copy" }, [
-          element("p", { class: "eyebrow", text: "مساحة أهدأ لفهم بعض" }),
-          element("h1", { text: "افهموا بعض قبل ما تبدأوا حياتكم سوا" }),
-          element("p", { class: "lede", text: "مساحة خاصة تساعدكما على فهم طريقة التواصل، ومناقشة القرارات المهمة، واكتشاف ما اتفقتما عليه وما يحتاج إلى حوار — من دون أحكام أو تشخيصات." }),
-          element("div", { class: "hero-actions" }, [
-            element("a", { class: "button button--primary", href: "#/assessments", text: "شاهدا الاختبارات النفسية" }),
-            element("a", { class: "button button--secondary", href: "#/premarital", text: "ابدآ الرحلة قبل الزواج" })
-          ]),
-          element("ul", { class: "hero-trust" }, [
-            "بياناتكما تظل على الجهاز",
-            "لا يحتاج إلى حساب",
-            "لا تشخيص ولا حكم على العلاقة"
-          ].map((line) => element("li", {}, [checkIcon(), element("span", { text: line })])))
-        ]),
-        heroVisual()
-      ])
-    ])
-  ]));
-
-  /* ------------------------------------------------ TWO MAIN SECTIONS */
-  root.append(element("section", { class: "page-section" }, [
-    element("div", { class: "container" }, [
-      sectionHeading("جوهر بيننا", "اختارا من أين تبدآن", "الاختبارات النفسية ورحلة ما قبل الزواج مستقلتان، ويمكن البدء بأي منهما."),
-      element("div", { class: "home-cards home-cards--primary" }, HOME_PRIMARY_CARDS.map(homeCard))
-    ])
-  ]));
-
-  /* --------------------------------------------------- EXTRA TOOLS */
-  root.append(element("section", { class: "page-section" }, [
-    element("div", { class: "container" }, [
-      sectionHeading("أدوات إضافية", "لحوار أخف وأقرب", "أضيفت لاحقًا بجانب الاختبارات والرحلة، وكل واحدة منها اختيارية."),
-      element("div", { class: "home-cards home-cards--secondary" }, HOME_SECONDARY_CARDS.map(homeCard))
-    ])
-  ]));
-
-  /* ----------------------------------------------------- HOW IT WORKS */
-  root.append(element("section", { class: "page-section tone-lilac" }, [
-    element("div", { class: "container" }, [
-      sectionHeading("ثلاث خطوات", "خطوات بسيطة، وحوار أوضح", ""),
-      element("div", { class: "home-steps" }, [
-        "اختارا التجربة المناسبة",
-        "يجيب كل طرف بخصوصية",
-        "ناقشا النتائج من غير أحكام"
-      ].map((step, index) => element("div", { class: "home-step" }, [
-        element("span", { text: `الخطوة ${index + 1}` }),
-        element("p", { text: step })
-      ])))
-    ])
-  ]));
-
-  /* ------------------------------------------------- IMPORTANT TOPICS */
-  root.append(element("section", { class: "page-section" }, [
-    element("div", { class: "container" }, [
-      sectionHeading("قبل أن تقررا", "موضوعات تستحق أن تتكلموا عنها", "كل موضوع يفتح مجموعة أسئلة جاهزة للحوار."),
-      element("div", { class: "topic-chips" }, HOME_TOPICS.map((topic) =>
-        element("a", {
-          class: "topic-chip",
-          href: `#/questions/category/${topic.category}`,
-          text: topic.label
-        })
-      ))
-    ])
-  ]));
-
-  /* -------------------------------------------------- PRIVACY SECTION */
-  root.append(element("section", { class: "page-section" }, [
-    element("div", { class: "container" }, [
-      element("div", { class: "home-privacy" }, [
-        element("div", { class: "home-privacy-copy" }, [
-          element("h2", { text: "خصوصيتكما جزء من التجربة" }),
-          element("p", { text: "لا يحتاج بيننا إلى حساب، ولا يرسل إجاباتكما إلى خادم خاص بالتطبيق. بعض النتائج والتقدم قد تُحفظ محليًا على الجهاز ويمكن حذفها في أي وقت." })
-        ]),
-        element("a", { class: "button button--secondary", href: "#/privacy", text: "اعرفا كيف نحمي الخصوصية" })
-      ])
-    ])
-  ]));
-
-  /* ------------------------------------------------------ CLOSING CTA */
-  root.append(element("section", { class: "page-section" }, [
-    element("div", { class: "container" }, [
-      element("div", { class: "home-closing" }, [
-        element("h2", { text: "ابدآ بالسؤال الذي لم تسألاه بعد" }),
-        element("a", { class: "button button--primary", href: "#/premarital", text: "ابدآ الرحلة" }),
-        element("a", { href: "#/assessments", text: "تصفّحا كل التجارب" })
-      ])
-    ])
-  ]));
-
-  return root;
 }
 
 function renderLibrary() {
@@ -454,7 +237,7 @@ function renderHow() {
     "يرسل الطرف الأول الرمز أو رابط المشاركة إلى الطرف الثاني.",
     "يفتح الطرف الثاني الاختبار نفسه ويجيب عن نفسه بصورة مستقلة.",
     "يقرأ المتصفح الرمز ويتحقق من نسخته وسلامته وملاءمته للاختبار.",
-    "تُحسب نسبة تقارب الإجابات من متوسط الفروق المطلقة بين الأبعاد الستة.",
+    "تُعرض الفروق لكل بُعد على حدة، دون نسبة إجمالية للعلاقة.",
     "تظهر نقاط التشابه والاختلاف وأسئلة حوار محايدة، مع بوابة سلامة عند الحاجة."
   ];
   return element("section", { class: "container page-section view-enter" }, [
@@ -511,14 +294,14 @@ function renderPrivacy() {
       element("ul", { class: "stack--sm" }, [
         element("li", { text: "لا اسم قانوني كامل ولا بريد ولا هاتف." }),
         element("li", { text: "لا معلومات جهاز ولا عنوان شبكة لأغراض التتبع." }),
-        element("li", { text: "لا ملاحظات حرة خاصة ولا رسائل بينكما." }),
+        element("li", { text: "الملاحظات الاختيارية تبقى على جهازك، ولا تُرسل إلينا أو إلى شريكك." }),
         element("li", { text: "لا إجابات خام داخل رمز النتيجة." }),
         element("li", { text: "لا بكسلات تتبع ولا خدمات نماذج خارجية." })
       ])
     ]),
     element("article", { class: "surface-card stack" }, [
       element("h2", { text: "محتوى رمز النتيجة" }),
-      element("p", { text: "رقم النسخة، ومعرّف الاختبار، والاسم المختصر، ونسب الأبعاد الستة، والمؤشرات غير التشخيصية الضرورية، ووقت الإكمال، وبصمة تحقق." }),
+      element("p", { text: "رقم النسخة، ومعرّف الاختبار، والاسم المختصر، ونسب الأبعاد الستة، ووقت الإكمال، وبصمة تحقق. لا تُضاف المؤشرات المشتقة أو مؤشرات السلامة إلى الرموز الجديدة." }),
       element("div", { class: "notice notice--warning" }, [
         element("strong", { text: "تنبيه صريح" }),
         element("p", { text: "رمز النتيجة مشفّر ترميزيًا للنقل فقط، وليس تشفيرًا أمنيًا. من يملكه يستطيع فك نسب الأبعاد، فشارك الرمز مع الشخص المقصود فقط." })
@@ -547,7 +330,7 @@ function renderPrivacy() {
       element("h2", { text: "ما الذي يقوله المتصفح والاستضافة بدقة" }),
       element("ul", { class: "stack--sm" }, [
         element("li", { text: "localStorage: ذاكرة دائمة داخل هذا المتصفح تبقى بعد إغلاق التبويب. تُحفظ فيها التقدّم والنتائج والاقتران وقوائم الأسئلة والأجندة." }),
-        element("li", { text: "sessionStorage: ذاكرة مؤقتة تُمسح عند إغلاق التبويب. تُحفظ فيها إجابات المقارنة على جهاز واحد، وكل تحدي «قد إيه تعرفني؟»، والمراجعة الخاصة بالسلامة." }),
+        element("li", { text: "sessionStorage: ذاكرة مؤقتة لجلسة التبويب، تُحفظ فيها إجابات المقارنة على جهاز واحد، وكل تحدي «قد إيه تعرفني؟»، والمراجعة الخاصة بالسلامة. قد يحتفظ بها المتصفح عند استعادة تبويب أو نسخه؛ استخدم «أنهِ جلسة العمل الحالية» لمسحها صراحةً." }),
         element("li", { text: "رمز النتيجة يحمل نسخة ومعرّفًا واسمًا مختصرًا وأرقامًا مجمّعة ووقت إكمال وبصمة تحقق، ولا يحمل إجابة أي سؤال." }),
         element("li", { text: "ترميز Base64URL ليس تشفيرًا. من يحصل على الرمز يستطيع قراءة محتواه المجمّع بسهولة." }),
         element("li", { text: "من يملك وصولًا إلى هذا الجهاز أو المتصفح يستطيع رؤية ما هو محفوظ محليًا." }),
@@ -571,7 +354,7 @@ function privateModeCard() {
       element("h2", { text: "الوضع الخاص" }),
       element("span", { class: "badge", text: active ? "مفعّل" : "غير مفعّل" })
     ]),
-    element("p", { text: "في الوضع الخاص لا يُحفظ أي تقدّم أو نتيجة أو اقتران أو مفضلة أو ملخص في ذاكرة المتصفح الدائمة. تعمل كل الميزات، لكن ما تفعله يختفي بإغلاق التبويب." }),
+    element("p", { text: "في الوضع الخاص لا يُحفظ أي تقدّم أو نتيجة أو اقتران أو مفضلة أو ملخص في ذاكرة المتصفح الدائمة. تظل الجولة الحالية متاحة في ذاكرة الصفحة، وتختفي عند تحديثها أو إغلاق التبويب. بيانات المقارنة المؤقتة تظل خاصة بجلسة التبويب." }),
     element("div", { class: "notice notice--warning" }, [
       element("p", { text: active
         ? "إيقاف الوضع الخاص يعني أن ما تفعله بعد ذلك سيُحفظ في هذا المتصفح ويبقى بعد إغلاقه، وقد يراه من يستخدم الجهاز."
@@ -721,7 +504,7 @@ function renderScience() {
       element("li", { text: "أنماط التعلق تُقرأ على أبعاد مستمرة، وأي «ميل» وصف حذر للحظة الراهنة لا هوية ثابتة." }),
       element("li", { text: "مؤشرات النرجسية والقسوة تقارير ذاتية عن سمات وسلوكيات، وليست تشخيصًا لاضطراب شخصية." }),
       element("li", { text: "الغيرة والغضب مشاعر بشرية؛ المراقبة والتهديد والإكراه والإيذاء سلوكيات لا تُبررها المشاعر." }),
-      element("li", { text: "نسبة تقارب الإجابات وصف للفروق في الإجابات، لا ضمان توافق ولا احتمال نجاح للزواج." }),
+      element("li", { text: "المقارنة وصف للفروق بين الأبعاد، بلا نسبة إجمالية أو احتمال نجاح للزواج." }),
       element("li", { text: "لا يمكن لاستبيان نفسي إثبات أو نفي هوية دينية أو غيبية؛ يُقيّم اختبار المهدوية فحص الدليل والأثر الوظيفي فقط." })
     ])
   ]));
@@ -834,7 +617,8 @@ async function restartAssessment(test, target = "intro") {
 
 function renderIntro(test) {
   const saved = storage.getResult(test);
-  const progress = storage.getProgress(test);
+  const candidate = storage.getProgress(test);
+  const progress = candidate?.stale ? null : candidate;
   const category = categoryFor(test);
   const pending = storage.getPendingCode(test.id);
   const root = element("section", { class: "container page-section view-enter" }, [
@@ -959,6 +743,7 @@ function renderIntro(test) {
     side.append(form);
   }
 
+  if (candidate?.stale) root.append(element("p", { class: "notice", text: "تغيّرت نسخة الأسئلة. ابدأ إجابة جديدة حتى لا تُفسَّر إجابات قديمة على محتوى مختلف." }));
   root.append(element("div", { class: "intro-grid spaced-lg" }, [main, side]));
   return root;
 }
@@ -974,14 +759,18 @@ function shuffleIndexes(length) {
 
 function prepareQuizState(test) {
   const progress = storage.getProgress(test);
-  if (!progress) return null;
+  if (!progress || progress.stale) return null;
+  const savedNotes = storage.readSession(`${storage.sessionKey.prefix}notes:${test.id}`);
+  progress.notes = Object.fromEntries(test.questions
+    .filter(question => typeof savedNotes?.[question.id] === "string")
+    .map(question => [question.id, savedNotes[question.id].slice(0, 2000)]));
   test.questions.forEach((question) => {
     if (!Array.isArray(progress.order[question.id])) {
       progress.order[question.id] = shuffleIndexes(question.options.length);
     }
   });
   const currentQuestion = test.questions[progress.index];
-  if (progress.answers[currentQuestion?.id] !== undefined) {
+  if (!currentQuestion) {
     const firstUnanswered = test.questions.findIndex((question) => progress.answers[question.id] === undefined);
     if (firstUnanswered >= 0) progress.index = firstUnanswered;
   }
@@ -1076,7 +865,8 @@ function paintQuestion() {
       type: "button",
       class: "option-button",
       role: "radio",
-      "aria-checked": chosen === option.s ? "true" : "false"
+      "aria-checked": chosen === option.s ? "true" : "false",
+      tabindex: chosen === option.s || (chosen === undefined && visualIndex === 0) ? "0" : "-1"
     }, [
       element("span", { class: "option-marker", "aria-hidden": "true" }),
       element("span", { text: option.t })
@@ -1085,6 +875,7 @@ function paintQuestion() {
       progress.answers[question.id] = option.s;
       storage.setProgress(test, progress);
       paintQuestion();
+      quizState.optionButtons[visualIndex]?.focus({ preventScroll: true });
       announce(`تم اختيار الإجابة ${visualIndex + 1}`);
     });
     quizState.optionButtons.push(button);
@@ -1102,7 +893,7 @@ function paintQuestion() {
     progress.index -= 1;
     storage.setProgress(test, progress);
     paintQuestion();
-    elements.questionCard.focus({ preventScroll: true });
+    elements.questionCard.querySelector("h1").focus({ preventScroll: true });
   });
 
   const isLast = progress.index === test.questions.length - 1;
@@ -1113,7 +904,7 @@ function paintQuestion() {
   });
   next.disabled = chosen === undefined;
   next.addEventListener("click", () => {
-    if (progress.answers[question.id] === undefined) return;
+    if (progress.index !== test.questions.indexOf(question) || progress.answers[question.id] === undefined) return;
     if (isLast) {
       finishQuiz();
       return;
@@ -1121,7 +912,8 @@ function paintQuestion() {
     progress.index += 1;
     storage.setProgress(test, progress);
     paintQuestion();
-    elements.questionCard.scrollIntoView({ block: "start", behavior: "smooth" });
+    elements.questionCard.querySelector("h1").focus({ preventScroll: true });
+    elements.questionCard.scrollIntoView({ block: "start", behavior: "auto" });
   });
   quizState.nextButton = next;
 
@@ -1131,22 +923,23 @@ function paintQuestion() {
     class: "textarea free-note",
     placeholder: "اكتب ملاحظتك هنا… (اختياري ولا تؤثر على النتيجة)",
     "aria-label": "ملاحظة حرة",
-    rows: "3"
+    rows: "3", maxlength: "2000"
   });
   noteArea.value = noteValue;
   noteArea.addEventListener("input", () => {
     progress.notes[question.id] = noteArea.value;
-    storage.setProgress(test, progress);
+    storage.writeSession(`${storage.sessionKey.prefix}notes:${test.id}`, progress.notes);
   });
 
   elements.questionCard.setAttribute("tabindex", "-1");
   elements.questionCard.append(
     element("div", { class: "stack" }, [
       element("p", { class: "question-number", text: categoryFor(test).name }),
-      element("h1", { class: "question-prompt", id: promptId, text: question.prompt }),
+      element("h1", { class: "question-prompt", id: promptId, tabindex: "-1", text: question.prompt }),
       options,
       element("details", { class: "note-toggle" }, [
         element("summary", { text: noteValue ? "ملاحظتك ✏️" : "أضف ملاحظة حرة (اختياري)" }),
+        element("p", { class: "fine-print", text: "تبقى الملاحظات في جلسة هذا التبويب فقط، ولا تدخل في النتيجة أو رمز المشاركة." }),
         noteArea
       ])
     ]),
@@ -1324,14 +1117,9 @@ function renderResult(test) {
   ]);
   root.append(element("header", { class: "surface-card result-hero" }, [
     heroCopy,
-    score.overall !== null ? element("div", { class: "score-orbit", "aria-label": `${test.overallLabel || "المؤشر الإرشادي"}: ${formatPercentage(score.overall)}` }, [
-      element("div", {}, [
-        element("strong", { text: formatPercentage(score.overall) }),
-        element("span", { text: test.scoreMode === "risk" ? "ارتفاع في المؤشرات المبلغ عنها ذاتيًا" : (test.overallLabel || "مؤشر إرشادي") })
-      ])
-    ]) : element("div", { class: "stat-card" }, [
-      element("span", { text: "قراءة ملفية" }),
-      element("strong", { text: "6 أبعاد" })
+    element("div", { class: "reflection-note stack" }, [
+      element("h2", { text: "مساحة للتأمل" }),
+      element("p", { text: "اقرأ كل بُعد على حدة. أي وصف يشبه تجربتك، وأي موقف تريد أن تتحدث عنه؟" })
     ])
   ]));
 
@@ -1594,8 +1382,7 @@ function sharedSummaryText(test, firstName, secondName, comparison) {
   const lines = [
     `${config.brand.name} — ${test.title}`,
     `الطرفان: ${firstName} و${secondName}`,
-    `نسبة تقارب الإجابات: ${formatPercentage(comparison.similarity)}`,
-    "هذه النسبة تصف تشابه الإجابات فقط، ولا تقيس جودة العلاقة أو مستقبلها.",
+    "مقارنة الأبعاد من دون نسبة إجمالية أو حكم على العلاقة.",
     "",
     "الأبعاد:"
   ];
@@ -1656,12 +1443,11 @@ function renderShared(test) {
       { label: "نتيجتي", href: assessmentPath(test.id, "result") },
       { label: "النتيجة المشتركة" }
     ]),
-    element("header", { class: "surface-card similarity-banner" }, [
-      element("strong", { class: "similarity-value", text: formatPercentage(comparison.similarity) }),
+    element("header", { class: "surface-card reflection-banner" }, [
       element("div", { class: "stack--sm" }, [
-        element("p", { class: "eyebrow", text: `${firstName} و${secondName}` }),
-        element("h1", { text: "نسبة تقارب الإجابات" }),
-        element("p", { text: "تمثل مدى تشابه نسبكما في الأبعاد الستة فقط. ليست نسبة حب، ولا تقييمًا لجودة العلاقة، ولا تنبؤًا بالزواج أو الانفصال." })
+        element("h1", { text: "قراءتان، وحوار بينكما" }),
+        element("p", { class: "fine-print", text: `${firstName} و${secondName}` }),
+        element("p", { text: "ستة أبعاد تُقرأ جنبًا إلى جنب. التقارب والاختلاف بدايتان للفهم، ولا تختزل هذه المقارنة علاقتكما في رقم أو حكم." })
       ])
     ])
   ]);
@@ -1684,20 +1470,20 @@ function renderShared(test) {
   root.append(element("div", { class: "result-columns" }, [
     element("section", { class: "surface-card stack" }, [
       element("h2", { text: "أقرب ثلاثة أبعاد" }),
-      ...comparison.similarities.map((row) => element("article", { class: "insight-card insight-card--strength" }, [
+      ...comparison.similarities.map((row) => element("article", { class: "insight-card insight-card--neutral" }, [
         element("div", { class: "split" }, [
           element("h3", { text: row.name }),
-          element("span", { class: "badge badge--success", text: `${row.label} · ${formatPercentage(row.gap)}` })
+          element("span", { class: "badge", text: `${row.label} · ${formatPercentage(row.gap)}` })
         ]),
         element("p", { text: row.gap <= 10 ? "تصف إجاباتكما هذا الجانب بصورة متقاربة." : "هذا أقرب نسبيًا من بقية الأبعاد، مع بقاء فرق يستحق الفهم." })
       ]))
     ]),
     element("section", { class: "surface-card stack" }, [
       element("h2", { text: "أوضح ثلاثة اختلافات" }),
-      ...comparison.differences.map((row) => element("article", { class: "insight-card insight-card--growth" }, [
+      ...comparison.differences.map((row) => element("article", { class: "insight-card insight-card--neutral" }, [
         element("div", { class: "split" }, [
           element("h3", { text: row.name }),
-          element("span", { class: "badge badge--warning", text: `${row.label} · ${formatPercentage(row.gap)}` })
+          element("span", { class: "badge", text: `${row.label} · ${formatPercentage(row.gap)}` })
         ]),
         element("p", { text: row.definition.pair?.gap || "اختلاف الإجابات لا يحدد من الأفضل؛ استخدماه لتسمية اختلاف الخبرة أو الاحتياج." })
       ]))
@@ -1711,7 +1497,7 @@ function renderShared(test) {
     element("h2", { text: "نقاط قوة مشتركة" }),
     comparison.sharedStrengths.length
       ? element("div", { class: "dimension-detail-grid" }, strengths.map((row) =>
-          element("article", { class: "insight-card insight-card--strength" }, [
+          element("article", { class: "insight-card insight-card--neutral" }, [
             element("h3", { text: row.name }),
             element("p", { text: row.definition.pair?.bothHigh || "يجتمع التقارب مع نمط داعم نسبيًا لدى الطرفين في هذا البُعد." })
           ])
@@ -1724,7 +1510,7 @@ function renderShared(test) {
   root.append(element("section", { class: "surface-card stack" }, [
     element("h2", { text: safetyLevel === "high" ? "مساحات مراجعة خاصة" : "مساحات محايدة للنقاش" }),
     element("div", { class: "dimension-detail-grid" }, comparison.discussionAreas.map((row) =>
-      element("article", { class: "dimension-detail" }, [
+      element("article", { class: "dimension-detail insight-card--neutral" }, [
         element("div", { class: "split" }, [
           element("h3", { text: row.name }),
           element("span", { class: "badge", text: comparisonLabel(row.gap) })
@@ -1783,7 +1569,12 @@ function renderAssessmentRoute(route) {
   const test = testsById.get(route.assessmentId);
   if (!test) return renderNotFound();
   // Assessments with safety gating get the quick-exit control on every subpage.
-  setSensitiveView(Boolean(test.safety) || test.scoreMode === "risk");
+  const sensitive = Boolean(test.safety) || test.scoreMode === "risk";
+  setSensitiveView(sensitive);
+  if (sensitive) {
+    const gate = sensitiveGate(test.id, test.safety?.message || test.disclaimer, "#/assessments");
+    if (gate) return gate;
+  }
   if (route.subpage === "quiz") return renderQuiz(test);
   if (route.subpage === "result") return renderResult(test);
   if (route.subpage === "partner") return renderPartner(test, route.code);
@@ -1798,12 +1589,18 @@ function documentTitle(route) {
   if (route.name === "privacy") return `الخصوصية — ${config.brand.name}`;
   if (route.name === "science") return `الأساس العلمي — ${config.brand.name}`;
   if (route.name === "faq") return `الأسئلة الشائعة — ${config.brand.name}`;
-  if (route.name === "assessment") return `${testsById.get(route.assessmentId)?.title || "اختبار"} — ${config.brand.name}`;
+  if (route.name === "assessment") {
+    const test = testsById.get(route.assessmentId);
+    return `${test?.safety || test?.scoreMode === "risk" ? "مساحة خاصة" : test?.title || "تقييم ذاتي"} — ${config.brand.name}`;
+  }
   if (route.name === "terms") return `الشروط والحدود — ${config.brand.name}`;
   if (route.name === "safety" || route.name === "safety-check") return `الخصوصية والأمان — ${config.brand.name}`;
   if (route.name === "premarital") return `الرحلة قبل الزواج — ${config.brand.name}`;
   if (route.name === "premarital-agenda") return `أجندة الحوار — ${config.brand.name}`;
-  if (route.name === "alignment") return `${window.BAYNANA_ALIGNMENT.maps.find((map) => map.id === route.mapId)?.title || "خريطة توافق"} — ${config.brand.name}`;
+  if (route.name === "alignment") {
+    const map = window.BAYNANA_ALIGNMENT.maps.find(map => map.id === route.mapId);
+    return `${map && map.sensitivity !== "standard" ? "مساحة خاصة" : map?.title || "خريطة حوار"} — ${config.brand.name}`;
+  }
   if (route.name.startsWith("questions")) return `أسئلة بيننا — ${config.brand.name}`;
   if (route.name === "know-me") return `قد إيه تعرفني؟ — ${config.brand.name}`;
   return `الصفحة غير موجودة — ${config.brand.name}`;
@@ -1839,9 +1636,18 @@ function render() {
   closeMobileMenu();
   updateActiveNavigation(route);
   document.title = documentTitle(route);
+  // Retain legacy deep links, but use neutral activity identifiers in new history.
+  if (route.name === "assessment" || route.name === "alignment") {
+    const path = route.name === "assessment" ? assessmentPath(route.assessmentId, route.subpage === "intro" ? "" : route.subpage)
+      : alignmentPath(route.mapId, route.subpage === "intro" ? "" : route.subpage);
+    const target = route.code ? `${path}/${route.code}` : path;
+    if (window.location.hash !== target) window.history.replaceState(null, "", target);
+  }
+  app.dataset.view = route.name;
   clear(app);
 
   let view;
+  try {
   if (route.name === "home") view = renderHome();
   else if (route.name === "assessments") view = renderLibrary();
   else if (route.name === "how") view = renderHow();
@@ -1862,8 +1668,21 @@ function render() {
   else if (route.name === "know-me") view = renderKnowMeRoute(route);
   else if (route.name === "assessment") view = renderAssessmentRoute(route);
   else view = renderNotFound();
+  } catch {
+    view = element("section", { class: "container narrow-page page-section stack" }, [
+      element("h1", { text: "تعذّر فتح هذه الصفحة" }),
+      element("p", { text: "قد تكون بيانات الجلسة غير مكتملة. عد إلى بداية النشاط أو احذف بياناته من صفحة الخصوصية ثم حاول مجددًا." }),
+      element("a", { href: "#/", class: "button button--primary", text: "العودة إلى الرئيسية" }),
+      element("a", { href: "#/privacy", text: "إدارة البيانات والخصوصية" })
+    ]);
+  }
   if (!view) view = renderNotFound();
   app.append(view);
+  // Consume incoming links once; aggregate codes need not remain in history.
+  if (route.code && !app.textContent.includes("قبل الدخول إلى محتوى حساس")) {
+    window.history.replaceState(null, "", route.name === "assessment"
+      ? assessmentPath(route.assessmentId, "partner") : alignmentPath(route.mapId, "partner"));
+  }
   if (document.body.classList.contains("is-sensitive-view")) app.append(quickExitBar());
   window.scrollTo({ top: 0, behavior: "auto" });
   focusViewHeading();
@@ -1959,11 +1778,19 @@ function initializeShell() {
     onExit: () => {
       storage.clearSession();
       clearKnowledgeSession();
+      quizState = null;
+      resetAlignmentAnswerState();
+      endSession();
     }
   });
   window.addEventListener("hashchange", render);
+  window.addEventListener("pageshow", event => { if (event.persisted) {
+    document.querySelectorAll(".quick-exit-overlay").forEach(node => node.remove());
+    document.body.classList.remove("is-quick-exiting");
+    render();
+  } });
   document.addEventListener("keydown", (event) => {
-    if (!quizState) return;
+    if (!quizState || document.querySelector("dialog[open]") || menuButton.getAttribute("aria-expanded") === "true") return;
     const tagName = event.target?.tagName || "";
     const editing = ["INPUT", "TEXTAREA", "SELECT"].includes(tagName) || event.target?.isContentEditable;
     if (event.ctrlKey || event.metaKey || event.altKey) return;
@@ -1971,13 +1798,14 @@ function initializeShell() {
     if (!editing && Object.hasOwn(choiceMap, event.key)) {
       quizState.optionButtons[choiceMap[event.key]]?.click();
       event.preventDefault();
-    } else if (!editing && event.key === "Enter" && quizState.nextButton && !quizState.nextButton.disabled) {
+    } else if (!editing && (!['BUTTON', 'A', 'SUMMARY'].includes(tagName) || event.target.getAttribute?.('role') === 'radio') && event.key === "Enter" && quizState.nextButton && !quizState.nextButton.disabled) {
       quizState.nextButton.click();
       event.preventDefault();
     } else if (!editing && event.key === "Backspace" && quizState.progress.index > 0) {
       quizState.progress.index -= 1;
       storage.setProgress(quizState.test, quizState.progress);
       paintQuestion();
+      quizState.elements.questionCard.querySelector("h1").focus({ preventScroll: true });
       event.preventDefault();
     }
   });

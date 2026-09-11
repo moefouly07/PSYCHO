@@ -1,0 +1,8 @@
+site/node_modules/
+site/dist/
+site/test-results/
+site/playwright-report/
+.impeccable/review/
+.env
+.env.*
+!.env.example

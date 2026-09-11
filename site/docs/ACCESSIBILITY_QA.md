@@ -41,10 +41,10 @@ real view modules rendered through a DOM shim. Each failure blocks the build.
 |---|---|
 | Semantic landmarks | `header` / `nav` / `main` / `footer` in `index.html`; views render `section` + `header` |
 | Skip link | `<a class="skip-link" href="#app">` as the first focusable element |
-| Focus restoration after route change | `render()` calls `app.focus({ preventScroll: true })` on `#app[tabindex="-1"]` |
+| Focus restoration after route change | `render()` focuses the route H1; question changes focus the new question heading |
 | Focus restoration after a dialog | `confirmAction()` records `document.activeElement` and restores it on close |
 | Keyboard access to every control | every control is a real `button`, `a`, `input`, `select`, or `textarea`; no `div` click handlers |
-| Escape does not conflict with quick exit | the quick-exit handler returns early when `dialog[open]` exists, so Escape still dismisses dialogs |
+| Escape does not conflict with quick exit | first Escape dismisses the dialog normally; the second within 900ms exits |
 | Quick exit is keyboard accessible | a real `button`, plus Escape pressed twice within 900ms |
 | Screen-reader announcements for question changes and progress | `announce()` writes to `#live-region` (`role="status"`, `aria-live="polite"`, `aria-atomic="true"`); progress bars expose `aria-valuetext` in Arabic |
 | No colour-only status | every status carries a text label (`بداية مشتركة`, `أولوية للحوار`, `مكتمل`); content kind carries a text badge as well as a border colour |
@@ -61,8 +61,8 @@ real view modules rendered through a DOM shim. Each failure blocks the build.
 
 ## 3. Not verified — manual testing still required
 
-None of the following has been done. Each is a blocking item for a public
-launch, and none can be established by the automated suite:
+The following coverage remains incomplete for public launch; automated checks
+and the limited manual spot check below do not establish conformance:
 
 - [ ] **Screen readers.** NVDA + Firefox, JAWS + Chrome, VoiceOver + Safari
       (macOS and iOS), TalkBack + Chrome (Android) — with an Arabic voice, in RTL.
@@ -71,8 +71,8 @@ launch, and none can be established by the automated suite:
 - [ ] **Focus not obscured by sticky elements** (WCAG 2.2 SC 2.4.11/2.4.12) —
       the sticky quick-exit bar must be checked against a focused element at the
       bottom of the viewport.
-- [ ] **Contrast measurement.** Text and non-text contrast ratios have been
-      designed for but not measured with a contrast tool, in both themes.
+- [ ] **Contrast measurement.** axe checks text contrast on seven routes in both themes;
+      every interactive state and non-text contrast still require manual review.
 - [ ] **Text resize to 200%** and **400% reflow at 320px** in a real browser.
 - [ ] **Target size (minimum)** (SC 2.5.8) measured on rendered output, not just
       asserted in CSS.
@@ -80,8 +80,8 @@ launch, and none can be established by the automated suite:
 - [ ] **Consistent help** (SC 3.2.6) and **redundant entry** (SC 3.3.7) review.
 - [ ] **Accessible authentication** (SC 3.3.8) — believed not applicable; there
       is no authentication.
-- [ ] **Automated auditing** with axe-core or Lighthouse against a served build.
-      No such run has been performed and no score is claimed.
+- [x] **Automated auditing** with axe-core against the production build: seven
+      routes in light and dark themes. No Lighthouse score is claimed.
 
 ---
 
@@ -108,7 +108,21 @@ launch, and none can be established by the automated suite:
 
 ```powershell
 npm test
+npm run test:e2e
 ```
 
 The accessibility checks are the final block of `scripts/test-views.mjs` and are
 reported individually in the output.
+
+## 6. Real-browser checks added in September 2026
+
+Playwright runs complete synthetic journeys in Edge on Windows (Chromium in CI),
+including assessment keyboard choice, RTL arrows, Enter/Backspace, focus after
+question navigation, dialogs, double-Escape, private-mode reload, corrupt state,
+comparison handoffs, and knowledge challenge completion. Seven viewport widths
+320–1920px cover six routes without document overflow. axe checks seven routes
+in both themes against WCAG A/AA rule tags, including text contrast.
+
+An in-app-browser manual spot check verified selected radio focus and RTL arrow
+movement; it exposed Enter navigation failing on a focused radio button, now
+covered by regression testing. This is not full keyboard or screen-reader QA.

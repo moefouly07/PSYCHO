@@ -52,11 +52,30 @@ function persist() {
  */
 function load() {
   const stored = storage.readSession(storage.sessionKey.knowledge);
-  if (!stored || !Array.isArray(stored.itemIds)) {
+  const validMap = value => value && typeof value === "object" && !Array.isArray(value);
+  if (!stored || !Array.isArray(stored.itemIds) || !stored.itemIds.length ||
+      new Set(stored.itemIds).size !== stored.itemIds.length ||
+      !stored.itemIds.every(id => allItems.some(item => item.id === id)) ||
+      !Number.isInteger(stored.phaseIndex) || stored.phaseIndex < 0 || stored.phaseIndex >= PHASES.length ||
+      !Number.isInteger(stored.index) || stored.index < 0 || stored.index > stored.itemIds.length ||
+      !["selfA", "selfB", "predA", "predB", "confA", "confB", "marksA", "marksB"].every(key => validMap(stored[key]))) {
+    storage.removeSession(storage.sessionKey.knowledge);
     state = null;
     return null;
   }
-  if (!state) state = stored;
+  stored.nickA = typeof stored.nickA === "string" ? storage.cleanNickname(stored.nickA) : "";
+  stored.nickB = typeof stored.nickB === "string" ? storage.cleanNickname(stored.nickB) : "";
+  const itemById = new Map(allItems.map(item => [item.id, item]));
+  for (const key of ["selfA", "selfB", "predA", "predB", "confA", "confB", "marksA", "marksB"]) {
+    const allowed = key.startsWith("conf") ? meta.confidenceLevels.map(level => level.id)
+      : key.startsWith("marks") ? meta.reviewMarks.map(label => label.id) : null;
+    stored[key] = Object.fromEntries(Object.entries(stored[key]).filter(([id, value]) => {
+      const item = itemById.get(id);
+      if (!item || !stored.itemIds.includes(id)) return false;
+      return allowed ? allowed.includes(value) : value === "private" || value === "unsure" || item.options.some(option => option.v === value);
+    }));
+  }
+  state = stored;
   return state;
 }
 
@@ -266,18 +285,20 @@ function paintPlayItem(card, meter, items, active) {
   const promptId = `km-${item.id}`;
   const options = element("div", { class: "option-list", role: "radiogroup", "aria-labelledby": promptId });
 
-  optionChoices(item).forEach((choice) => {
+  optionChoices(item).forEach((choice, choiceIndex) => {
     const selected = store[item.id] === choice.value;
     const button = element("button", {
       type: "button",
       class: `option-button${choice.muted ? " option-button--muted" : ""}`,
       role: "radio",
-      "aria-checked": selected ? "true" : "false"
+      "aria-checked": selected ? "true" : "false",
+      tabindex: selected || (store[item.id] === undefined && choiceIndex === 0) ? "0" : "-1"
     }, [element("span", { class: "option-marker", "aria-hidden": "true" }), element("span", { text: choice.text })]);
     button.addEventListener("click", () => {
       store[item.id] = choice.value;
       persist();
       paintPlayItem(card, meter, items, active);
+      card.querySelector(`[role="radio"][aria-checked="true"]`)?.focus({ preventScroll: true });
     });
     options.append(button);
   });
@@ -294,7 +315,7 @@ function paintPlayItem(card, meter, items, active) {
 
   if (active.kind === "predict") {
     const row = element("div", { class: "chips", role: "group", "aria-label": "ما مدى ثقتك في هذا التخمين؟" });
-    meta.confidenceLevels.forEach((level) => {
+    meta.confidenceLevels.forEach((level, levelIndex) => {
       const chip = element("button", {
         type: "button",
         class: "chip",
@@ -305,6 +326,7 @@ function paintPlayItem(card, meter, items, active) {
         confidenceStore[item.id] = level.id;
         persist();
         paintPlayItem(card, meter, items, active);
+        card.querySelectorAll(".chip")[levelIndex]?.focus({ preventScroll: true });
       });
       row.append(chip);
     });
@@ -317,6 +339,7 @@ function paintPlayItem(card, meter, items, active) {
   const next = element("button", { type: "button", class: "button button--primary", text: state.index === items.length - 1 ? "انتهيت" : "التالي" });
   next.disabled = store[item.id] === undefined;
   next.addEventListener("click", () => {
+    if (items[state.index] !== item || store[item.id] === undefined) return;
     state.index += 1;
     persist();
     paintPlayItem(card, meter, items, active);

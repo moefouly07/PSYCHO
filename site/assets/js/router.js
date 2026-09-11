@@ -41,6 +41,24 @@ const ASSESSMENT_SUBPAGES = ["intro", "quiz", "result", "partner", "shared"];
 const ALIGNMENT_SUBPAGES = ["intro", "answer", "result", "handoff", "compare", "partner", "shared"];
 const KNOWLEDGE_SUBPAGES = ["setup", "play", "handoff", "review", "result"];
 
+// Public aliases are permanent: never derive them from the current content order.
+const ASSESSMENT_ALIASES = Object.freeze({
+  a7: "romantic-jealousy", a12: "anger-management", a13: "narcissistic-traits",
+  a14: "cruelty-sadism-indicators", a17: "mahdi-claim-critical-thinking", a20: "trust-autonomy-boundaries"
+});
+const MAP_ALIASES = Object.freeze({
+  m2: "values-faith-culture", m3: "money-and-obligations", m5: "family-and-social-boundaries",
+  m6: "children-and-parenting", m8: "affection-and-intimacy"
+});
+
+function resolveAssessmentId(value) {
+  return ASSESSMENT_ALIASES[value] || value;
+}
+
+function resolveMapId(value) {
+  return MAP_ALIASES[value] || value;
+}
+
 function isSafeId(value) {
   return typeof value === "string" && /^[a-z0-9-]{2,64}$/i.test(value);
 }
@@ -59,10 +77,10 @@ export function currentRoute() {
     if (parts[1] === "agenda" && parts.length === 2) return { name: "premarital-agenda" };
     if (parts[1] === "align" && isSafeId(parts[2])) {
       const subpage = parts[3] || "intro";
-      if (ALIGNMENT_SUBPAGES.includes(subpage)) {
+      if (ALIGNMENT_SUBPAGES.includes(subpage) && parts.length <= (subpage === "partner" ? 5 : 4)) {
         return {
           name: "alignment",
-          mapId: parts[2],
+          mapId: resolveMapId(parts[2]),
           subpage,
           code: subpage === "partner" && parts[4] ? parts.slice(4).join("/") : ""
         };
@@ -76,8 +94,8 @@ export function currentRoute() {
     if (parts.length === 1) return { name: "questions" };
     if (parts[1] === "favorites" && parts.length === 2) return { name: "questions-favorites" };
     if (parts[1] === "session" && parts.length === 2) return { name: "questions-session" };
-    if (parts[1] === "category" && isSafeId(parts[2])) return { name: "questions-category", categoryId: parts[2] };
-    if (parts[1] === "deck" && isSafeId(parts[2])) return { name: "questions-deck", deckId: parts[2] };
+    if (parts[1] === "category" && isSafeId(parts[2]) && parts.length === 3) return { name: "questions-category", categoryId: parts[2] };
+    if (parts[1] === "deck" && isSafeId(parts[2]) && parts.length === 3) return { name: "questions-deck", deckId: parts[2] };
     return { name: "not-found" };
   }
 
@@ -98,10 +116,10 @@ export function currentRoute() {
   /* ------------------------------------------------------ existing assessments */
   if (parts[0] === "assessment" && parts[1]) {
     const subpage = parts[2] || "intro";
-    if (ASSESSMENT_SUBPAGES.includes(subpage)) {
+    if (ASSESSMENT_SUBPAGES.includes(subpage) && parts.length <= (subpage === "partner" ? 4 : 3)) {
       return {
         name: "assessment",
-        assessmentId: parts[1],
+        assessmentId: resolveAssessmentId(parts[1]),
         subpage,
         code: subpage === "partner" && parts[3] ? parts.slice(3).join("/") : ""
       };
@@ -150,12 +168,14 @@ export function navigate(hash, options = {}) {
 }
 
 export function assessmentPath(assessmentId, subpage = "") {
-  const root = `#/assessment/${encodeURIComponent(assessmentId)}`;
+  const id = Object.keys(ASSESSMENT_ALIASES).find(alias => ASSESSMENT_ALIASES[alias] === assessmentId) || assessmentId;
+  const root = `#/assessment/${encodeURIComponent(id)}`;
   return subpage ? `${root}/${subpage}` : root;
 }
 
 export function alignmentPath(mapId, subpage = "") {
-  const root = `#/premarital/align/${encodeURIComponent(mapId)}`;
+  const id = Object.keys(MAP_ALIASES).find(alias => MAP_ALIASES[alias] === mapId) || mapId;
+  const root = `#/premarital/align/${encodeURIComponent(id)}`;
   return subpage ? `${root}/${subpage}` : root;
 }
 

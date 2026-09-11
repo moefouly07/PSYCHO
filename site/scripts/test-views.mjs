@@ -171,10 +171,10 @@ check("same-device comparison classifies without a score", () => {
     answers[item.id] = index % 5;
     importance[item.id] = index === 0 ? "essential" : "flexible";
   });
-  storage.writeSession(storage.sessionKey.alignSlot(map.id, "a"), { nickname: "نور", answers, importance });
+  storage.writeSession(storage.sessionKey.alignSlot(map.id, "a"), { v: 1, mapId: map.id, contentVersion: map.contentVersion, nickname: "نور", answers, importance });
   const peerAnswers = {};
   map.items.forEach((item, index) => { peerAnswers[item.id] = (index + 3) % 5; });
-  storage.writeSession(storage.sessionKey.alignSlot(map.id, "b"), { nickname: "سلمى", answers: peerAnswers, importance: {} });
+  storage.writeSession(storage.sessionKey.alignSlot(map.id, "b"), { v: 1, mapId: map.id, contentVersion: map.contentVersion, nickname: "سلمى", answers: peerAnswers, importance: {} });
 
   const view = assertRendered(`#/premarital/align/${map.id}/compare`, "بداية مشتركة");
   const text = textOf(view);

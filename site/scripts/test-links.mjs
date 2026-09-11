@@ -75,7 +75,7 @@ function clickTo(anchor, expectedHash, expectedHeadingPart, label) {
 
 check("1 · logo returns to home", () => {
   visit("#/assessments");
-  clickTo(link("#/", ".site-header"), "#/", "افهموا بعض", "logo");
+  clickTo(link("#/", ".site-header"), "#/", "لكلٍّ منكما حكاية.", "logo");
 });
 
 /* ---------------------------------- 2-6. homepage → each experience */
@@ -222,7 +222,7 @@ check("18 · the not-found view offers a working way back", () => {
   visit("#/this-route-does-not-exist");
   assert.equal(currentRoute().name, "not-found");
   assert.ok(heading().includes("غير موجودة"), "not-found view should render");
-  clickTo(link("#/", "#app"), "#/", "افهموا بعض", "not-found recovery");
+  clickTo(link("#/", "#app"), "#/", "لكلٍّ منكما حكاية.", "not-found recovery");
 });
 
 /* ------------------------------------------- 19. external links */

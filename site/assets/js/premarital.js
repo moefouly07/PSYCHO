@@ -6,7 +6,8 @@
  * add, and private safety answers can never reach it.
  */
 
-import { storage } from "./storage.js";
+import { sensitiveGate } from "./sensitive-gate.js";
+import { storage, sanitizeAlignmentRecord } from "./storage.js";
 import {
   element, clear, announce, statusNode, setStatus, sectionHeading, breadcrumbs,
   copyText, exportText, confirmAction, isolatedCode
@@ -339,7 +340,7 @@ function alignmentIntro(map) {
     ])
   ]);
 
-  if (result?.stale) {
+  if (result?.stale || progress?.stale) {
     root.append(element("div", { class: "notice notice--warning" }, [
       element("strong", { text: "إجابات محفوظة من نسخة أقدم" }),
       element("p", { text: "تغيّرت أسئلة هذه الخريطة منذ آخر مرة. لن نُعيد تفسير إجاباتك القديمة على الأسئلة الجديدة، لأن ذلك سيغيّر معناها. ابدآ الخريطة من جديد لتحصلا على مقارنة صحيحة." }),
@@ -397,7 +398,7 @@ function alignmentIntro(map) {
                 }
               })
             ])
-          : startForm(map, progress, status),
+          : startForm(map, progress?.stale ? null : progress, status),
         status
       ])
     ])
@@ -463,8 +464,7 @@ function startForm(map, progress, status) {
 function loadAnswerRecord(map) {
   const mode = sessionMode(map.id);
   if (mode === "b") {
-    return storage.readSession(sessionSlotKey(map.id, "b"))
-      || { mapId: map.id, nickname: "الطرف الثاني", answers: {}, importance: {}, index: 0, contentVersion: map.contentVersion };
+    return sanitizeAlignmentRecord(map, storage.readSession(sessionSlotKey(map.id, "b")));
   }
   return storage.getAlignmentProgress(map)
     || storage.getAlignmentResult(map)
@@ -481,7 +481,7 @@ function saveAnswerRecord(map, record) {
 
 function alignmentAnswer(map) {
   const record = loadAnswerRecord(map);
-  if (!record) {
+  if (!record || record.stale) {
     return element("section", { class: "container narrow-page page-section view-enter" }, [
       element("div", { class: "surface-card stack" }, [
         element("h1", { text: "ابدآ من صفحة التعريف" }),
@@ -553,13 +553,14 @@ function paintAlignmentItem() {
   if (item.allowUnsure) choices.push({ value: "unsure", text: alignmentData.specialAnswers.unsure.label, muted: true });
   if (item.allowPrivate) choices.push({ value: "private", text: alignmentData.specialAnswers.private.label, muted: true });
 
-  choices.forEach((choice) => {
+  choices.forEach((choice, choiceIndex) => {
     const selected = record.answers[item.id] === choice.value;
     const button = element("button", {
       type: "button",
       class: `option-button${choice.muted ? " option-button--muted" : ""}`,
       role: "radio",
-      "aria-checked": selected ? "true" : "false"
+      "aria-checked": selected ? "true" : "false",
+      tabindex: selected || (record.answers[item.id] === undefined && choiceIndex === 0) ? "0" : "-1"
     }, [
       element("span", { class: "option-marker", "aria-hidden": "true" }),
       element("span", { text: choice.text })
@@ -568,13 +569,14 @@ function paintAlignmentItem() {
       record.answers[item.id] = choice.value;
       saveAnswerRecord(map, record);
       paintAlignmentItem();
+      card.querySelector(`[role="radio"][aria-checked="true"]`)?.focus({ preventScroll: true });
       announce(`تم اختيار: ${choice.text}`);
     });
     options.append(button);
   });
 
   const importanceRow = element("div", { class: "chips", role: "group", "aria-label": "ما مدى أهمية هذا البند بالنسبة إليك؟" });
-  IMPORTANCE.forEach((level) => {
+  IMPORTANCE.forEach((level, levelIndex) => {
     const active = (record.importance[item.id] || "flexible") === level.id;
     const chip = element("button", {
       type: "button",
@@ -587,6 +589,7 @@ function paintAlignmentItem() {
       record.importance[item.id] = level.id;
       saveAnswerRecord(map, record);
       paintAlignmentItem();
+      card.querySelectorAll(".chip")[levelIndex]?.focus({ preventScroll: true });
     });
     importanceRow.append(chip);
   });
@@ -609,7 +612,7 @@ function paintAlignmentItem() {
   });
   next.disabled = record.answers[item.id] === undefined;
   next.addEventListener("click", () => {
-    if (record.answers[item.id] === undefined) return;
+    if (map.items[record.index] !== item || record.answers[item.id] === undefined) return;
     if (isLast) { finishAlignment(); return; }
     record.index += 1;
     saveAnswerRecord(map, record);
@@ -734,7 +737,7 @@ function alignmentResult(map) {
           class: "button button--primary button--small",
           text: "ابدآ المقارنة على هذا الجهاز",
           onclick: () => {
-            storage.writeSession(sessionSlotKey(map.id, "a"), { nickname: record.nickname, answers: record.answers, importance: record.importance });
+            storage.writeSession(sessionSlotKey(map.id, "a"), { ...record, v: 1, mapId: map.id, contentVersion: map.contentVersion });
             storage.removeSession(sessionSlotKey(map.id, "b"));
             navigate(alignmentPath(map.id, "handoff"));
           }
@@ -804,6 +807,7 @@ function alignmentHandoff(map) {
           onclick: () => {
             setSessionMode(map.id, "b");
             storage.writeSession(sessionSlotKey(map.id, "b"), {
+              v: 1,
               mapId: map.id,
               nickname: "الطرف الثاني",
               answers: {},
@@ -833,11 +837,11 @@ function statusChip(status) {
 }
 
 function alignmentCompare(map) {
-  const slotA = storage.readSession(sessionSlotKey(map.id, "a"));
-  const slotB = storage.readSession(sessionSlotKey(map.id, "b"));
+  const slotA = sanitizeAlignmentRecord(map, storage.readSession(sessionSlotKey(map.id, "a")));
+  const slotB = sanitizeAlignmentRecord(map, storage.readSession(sessionSlotKey(map.id, "b")));
   setSensitiveView(map.sensitivity !== "standard");
 
-  if (!slotA || !slotB) {
+  if (!slotA || !slotB || slotA.stale || slotB.stale || Object.keys(slotA.answers).length !== map.items.length || Object.keys(slotB.answers).length !== map.items.length) {
     return element("section", { class: "container narrow-page page-section view-enter" }, [
       element("div", { class: "surface-card stack" }, [
         element("h1", { text: "انتهت جلسة المقارنة" }),
@@ -856,8 +860,8 @@ function alignmentCompare(map) {
       { label: "المقارنة على هذا الجهاز" }
     ]),
     element("header", { class: "surface-card stack" }, [
-      element("p", { class: "eyebrow", text: "مقارنة تفصيلية · جلسة واحدة" }),
       element("h1", { text: map.title }),
+      element("p", { class: "fine-print", text: "مقارنة تفصيلية · جلسة واحدة" }),
       element("p", { class: "lede", text: "لا توجد نسبة توافق. هذه صورة لما تتفقان فيه، وما تقتربان فيه، وما يستحق حوارًا، وما لم تتحدثا فيه بعد." })
     ]),
     element("div", { class: "stat-grid" }, [
@@ -886,7 +890,18 @@ function alignmentCompare(map) {
         element("span", { class: "fine-print", text: `${bucket.counts.same} مشترك · ${bucket.counts.close} قريب · ${bucket.counts.different} للحوار` })
       ]),
       element("p", { class: "fine-print", text: bucket.category.desc }),
-      element("div", { class: "table-scroll" }, [comparisonTable(bucket, slotA, slotB)]),
+      element("div", { class: "alignment-table" }, [comparisonTable(bucket, slotA, slotB)]),
+      element("div", { class: "alignment-items" }, bucket.rows.map(row => element("article", { class: "alignment-item" }, [
+        element("h3", { text: row.item.prompt }),
+        element("dl", {}, [
+          element("dt", { text: slotA.nickname || "الطرف الأول" }),
+          element("dd", { text: row.status === STATUS.skipped ? "خاص" : row.ownLabel }),
+          element("dt", { text: slotB.nickname || "الطرف الثاني" }),
+          element("dd", { text: row.status === STATUS.skipped ? "خاص" : row.peerLabel }),
+          element("dt", { text: "الوصف" }),
+          element("dd", { text: CLASSIFICATION[row.status] || row.status })
+        ])
+      ]))),
       element("p", {}, [element("strong", { text: "سؤال متابعة محايد: " }), bucket.category.followUp])
     ]));
   });
@@ -976,14 +991,20 @@ function alignmentPartner(map, incomingCode = "") {
   let incomingError = "";
   let incoming = null;
 
-  if (incomingCode) {
-    const decoded = decodeAlignmentCode(incomingCode, {
+  const pendingCode = incomingCode || storage.getPendingAlignmentCode(map.id);
+  if (pendingCode) {
+    const decoded = decodeAlignmentCode(pendingCode, {
       expectedMapId: map.id,
       availableIds: mapIds,
-      expectedContentVersion: map.contentVersion
+      expectedContentVersion: map.contentVersion, map
     });
-    if (decoded.ok) incoming = decoded;
-    else incomingError = decoded.message;
+    if (decoded.ok) {
+      incoming = decoded;
+      storage.setPendingAlignmentCode(map.id, decoded.code);
+    } else {
+      incomingError = decoded.message;
+      storage.deletePendingAlignmentCode(map.id);
+    }
   }
 
   if (!record) {
@@ -992,6 +1013,7 @@ function alignmentPartner(map, incomingCode = "") {
       element("div", { class: "surface-card stack" }, [
         element("h1", { text: "أكملا الخريطة أولًا" }),
         element("p", { text: "أجب أنت عن نفسك أولًا، ثم ألصق رمز الطرف الآخر لتظهر المقارنة على مستوى المجالات." }),
+        incoming ? element("p", { class: "notice", text: `تم التحقق من رمز ${incoming.payload.nickname}. يبقى في جلسة هذا التبويب أثناء إجابتك، ويُمسح عند إنهاء الجلسة أو الخروج السريع.` }) : null,
         incomingError ? element("div", { class: "notice notice--danger" }, [element("p", { text: incomingError })]) : null,
         element("a", { class: "button button--primary", href: alignmentPath(map.id), text: "ابدأ بإجابتي" })
       ])
@@ -1007,6 +1029,7 @@ function alignmentPartner(map, incomingCode = "") {
     } else {
       storage.setAlignmentPair(map.id, incoming.code, incoming.payload);
     }
+    storage.deletePendingAlignmentCode(map.id);
   }
 
   const input = element("textarea", {
@@ -1016,7 +1039,7 @@ function alignmentPartner(map, incomingCode = "") {
     placeholder: "BNA1.…",
     "aria-label": "رمز خريطة الطرف الآخر"
   });
-  if (incomingCode && !incomingError) input.value = incomingCode;
+  if (incoming && !incomingError) input.value = incoming.code;
 
   const form = element("form", { class: "surface-card stack" }, [
     element("div", { class: "stack--sm" }, [
@@ -1033,7 +1056,7 @@ function alignmentPartner(map, incomingCode = "") {
     const decoded = decodeAlignmentCode(input.value, {
       expectedMapId: map.id,
       availableIds: mapIds,
-      expectedContentVersion: map.contentVersion
+      expectedContentVersion: map.contentVersion, map
     });
     if (!decoded.ok) {
       input.setAttribute("aria-invalid", "true");
@@ -1047,6 +1070,7 @@ function alignmentPartner(map, incomingCode = "") {
     }
     input.removeAttribute("aria-invalid");
     storage.setAlignmentPair(map.id, decoded.code, decoded.payload);
+    storage.deletePendingAlignmentCode(map.id);
     navigate(alignmentPath(map.id, "shared"));
   });
 
@@ -1080,7 +1104,7 @@ function alignmentShared(map) {
   const decoded = decodeAlignmentCode(pair.code, {
     expectedMapId: map.id,
     availableIds: mapIds,
-    expectedContentVersion: map.contentVersion
+    expectedContentVersion: map.contentVersion, map
   });
   if (!decoded.ok) {
     storage.deleteAlignmentPair(map.id);
@@ -1192,6 +1216,11 @@ export function quickExitBar() {
 export function renderAlignmentRoute(route) {
   const map = mapsById.get(route.mapId);
   if (!map) return null;
+  setSensitiveView(map.sensitivity !== "standard");
+  if (map.sensitivity !== "standard") {
+    const gate = sensitiveGate(map.id, map.notice, "#/premarital");
+    if (gate) return gate;
+  }
   if (route.subpage === "answer") return alignmentAnswer(map);
   if (route.subpage === "result") return alignmentResult(map);
   if (route.subpage === "handoff") return alignmentHandoff(map);

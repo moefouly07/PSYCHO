@@ -389,9 +389,11 @@ check("private mode blocks every persistent write but keeps the app usable", () 
   assert.equal(storage.isPrivateMode(), true);
   const test = browserData.BAYNANA_DATA.tests[0];
   assert.equal(storage.setProgress(test, { nickname: "نور", answers: {}, order: {}, index: 0 }), false);
-  assert.equal(storage.getProgress(test), null);
+  assert.equal(window.localStorage.getItem(storage.key.progress(test.id)), null);
+  assert.ok(storage.getProgress(test), "private progress stays usable in memory");
   assert.equal(storage.setConversationList("favorites", ["id01"]), false);
-  assert.deepEqual(storage.getConversationList("favorites"), []);
+  assert.deepEqual(storage.getConversationList("favorites"), ["id01"]);
+  assert.equal(window.localStorage.getItem(storage.key.conversationFavorites), null);
   // Session storage still works: that is the point of private mode.
   storage.writeSession(storage.sessionKey.knowledge, { itemIds: ["kr01"] });
   assert.deepEqual(storage.readSession(storage.sessionKey.knowledge), { itemIds: ["kr01"] });

@@ -1,15 +1,6 @@
 import { formatPercentage } from "./scoring.js";
 
-function element(tag, attributes = {}, children = []) {
-  const node = document.createElement(tag);
-  Object.entries(attributes).forEach(([name, value]) => {
-    if (name === "class") node.className = value;
-    else if (name === "text") node.textContent = value;
-    else if (value !== null && value !== undefined && value !== false) node.setAttribute(name, value === true ? "" : String(value));
-  });
-  children.forEach((child) => { if (child) node.append(child); });
-  return node;
-}
+import { element } from "./dom.js";
 
 export function createDimensionMeters(dimensions) {
   const list = element("div", { class: "meter-list" });
