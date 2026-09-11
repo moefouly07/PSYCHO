@@ -310,6 +310,16 @@ and browser checks on pull requests. It does not deploy anything.
 
 ## Deploy the static build
 
+### Public access
+
+The public production URL is [psycho-rho-two.vercel.app](https://psycho-rho-two.vercel.app/).
+For the Vercel project `psycho`, **Settings → Deployment Protection → Vercel
+Authentication → Require Log In** is disabled so visitors can open deployments
+without a Vercel account. This is a Vercel project setting, not a `vercel.json`
+option; preserve it when recreating or transferring the project. The production
+domain and generated deployment URL were verified without cookies or credentials
+on 2026-09-11. Application storage and privacy behavior are unchanged.
+
 Set Vercel's project root to `site`, framework **Other**, install `npm ci`.
 `vercel.json` defines `npm run build` and output `dist`. Alternatively publish
 the contents of `dist` to GitHub Pages or any static host. Never publish the
